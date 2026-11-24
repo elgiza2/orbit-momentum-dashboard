@@ -1,56 +1,18 @@
-/** First-run setup: profile → what you do → create your primary bot. */
+/** First-run setup: name & photo → @username & group privacy. */
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, User, Code, Palette, GraduationCap, Briefcase, FilmSlate, Sparkle, CaretLeft, Check, At, Users } from "@phosphor-icons/react";
+import { Camera, User, CaretLeft, Check, X, CircleNotch, At, Users } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import { forceDarkTheme } from "@/lib/theme";
-import { AgentForm, type AgentFormValue } from "@/pages/agent/hub/HubPanels";
 import { Button } from "@/components/ui/button";
 import { loadPaywallFont } from "@/lib/paywallFont";
 import "@/styles/onboarding.css";
 import { toAvatar } from "@/lib/profile/avatar";
 import { peopleApi, normalizeUsername, USERNAME_RE } from "@/lib/people/peopleApi";
 
-const TYPES = [
-  { id: "developer", t: "Developer", I: Code, tone: "lime" },
-  { id: "designer", t: "Designer", I: Palette, tone: "pink" },
-  { id: "student", t: "Student", I: GraduationCap, tone: "sky" },
-  { id: "business", t: "Business owner", I: Briefcase, tone: "peach" },
-  { id: "creator", t: "Content creator", I: FilmSlate, tone: "lavender" },
-  { id: "other", t: "Something else", I: Sparkle, tone: "sun" },
-];
-const TOTAL_STEPS = 5;
-const AGES = Array.from({ length: 108 }, (_, i) => i + 13);
-const ROW = 52;
-
-function AgeWheel({ value, onChange }: { value: number; onChange: (n: number) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  useEffect(() => { const el = ref.current; if (el) { el.scrollTop = AGES.indexOf(value) * ROW; setScrollTop(el.scrollTop); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const onScroll = () => {
-    const el = ref.current; if (!el) return;
-    setScrollTop(el.scrollTop);
-    const n = AGES[Math.round(el.scrollTop / ROW)];
-    if (n && n !== value) onChange(n);
-  };
-  return (
-    <div className="ob-wheel">
-      <div className="ob-wheel-band" aria-hidden />
-      <div ref={ref} className="ob-wheel-scroll" onScroll={onScroll} role="listbox" aria-label="Age">
-        <div style={{ height: ROW }} />
-        {AGES.map((a, i) => {
-          const d = Math.min(Math.abs(i * ROW - scrollTop) / ROW, 2.5);
-          return (
-            <Button variant="ghost" key={a} type="button" role="option" aria-selected={a === value} className="ob-wheel-item"
-              style={{ opacity: 1 - d * 0.32, transform: `scale(${1 - d * 0.1}) rotateX(${(i * ROW - scrollTop) / ROW * -18}deg)` }}
-              onClick={() => ref.current?.scrollTo({ top: i * ROW, behavior: "smooth" })}>{a}</Button>
-          );
-        })}
-        <div style={{ height: ROW }} />
-      </div>
-    </div>
-  );
-}
+const TOTAL_STEPS = 2;
+const INVITES = [["everyone", "Everyone"], ["contacts", "Contacts"], ["nobody", "Nobody"]] as const;
+type UserStatus = "idle" | "checking" | "available" | "taken";
 
 export default function OnboardingPage() {
   const nav = useNavigate();
@@ -59,10 +21,9 @@ export default function OnboardingPage() {
   const [dir, setDir] = useState(1);
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [age, setAge] = useState(22);
-  const [type, setType] = useState("");
   const [username, setUsername] = useState("");
   const [hadUsername, setHadUsername] = useState(false);
+  const [uStatus, setUStatus] = useState<UserStatus>("idle");
   const [invites, setInvites] = useState<"everyone" | "contacts" | "nobody">("everyone");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -99,29 +60,42 @@ export default function OnboardingPage() {
     return () => { alive = false; };
   }, [nav, retry]);
 
-  const saveIdentity = async () => {
+  useEffect(() => {
+    if (hadUsername) { setUStatus("available"); return; }
+    if (!USERNAME_RE.test(username)) { setUStatus("idle"); return; }
+    let alive = true;
+    setUStatus("checking");
+    const t = window.setTimeout(async () => {
+      try {
+        const rows = await peopleApi.search(username);
+        if (!alive) return;
+        const taken = rows.some((r) => r.username?.toLowerCase() === username && r.id !== uid);
+        setUStatus(taken ? "taken" : "available");
+      } catch {
+        if (alive) setUStatus("idle");
+      }
+    }, 320);
+    return () => { alive = false; window.clearTimeout(t); };
+  }, [username, hadUsername, uid]);
+
+  const finish = async () => {
     if (!uid || busy) return;
     setBusy(true); setErr("");
     try {
       if (!hadUsername) { await peopleApi.setUsername(username); setHadUsername(true); }
-      const { error } = await supabase.from("profiles").update({ group_invites: invites } as never).eq("id", uid);
-      if (error) throw error;
-      goStep(2);
-    } catch (e) { setErr(e instanceof Error && /taken|exist|duplicate/i.test(e.message) ? "That username is taken. Try another." : "Couldn't save. Try again."); }
-    finally { setBusy(false); }
-  };
-
-  const finish = async (v: AgentFormValue) => {
-    if (!uid || busy) return;
-    setBusy(true); setErr("");
-    try {
+      const { error: invErr } = await supabase.from("profiles").update({ group_invites: invites } as never).eq("id", uid);
+      if (invErr) throw invErr;
       const { data, error } = await supabase.rpc("complete_onboarding", {
-        p_name: name.trim(), p_avatar: avatar ?? "", p_age: age, p_type: type,
-        p_bot_name: v.name, p_description: v.description ?? "", p_instructions: v.prompt ?? "", p_look: (v.look ?? {}) as never,
+        p_name: name.trim(), p_avatar: avatar ?? "", p_age: 22, p_type: "other",
+        p_bot_name: "Ceyo", p_description: "", p_instructions: "", p_look: {} as never,
       });
       if (error || !data) throw new Error("Setup failed");
       nav("/", { replace: true });
-    } catch { setErr("Couldn't finish setup. Your changes weren't partially saved. Try again."); }
+    } catch (e) {
+      const taken = e instanceof Error && /taken|exist|duplicate/i.test(e.message);
+      if (taken) setUStatus("taken");
+      setErr(taken ? "That username is taken. Try another." : "Couldn't finish setup. Try again.");
+    }
     finally { setBusy(false); }
   };
 
@@ -130,6 +104,9 @@ export default function OnboardingPage() {
     {loadError && <Button variant="neutral" className="ob-btn" onClick={() => setRetry((v) => v + 1)}>Retry</Button>}
   </main></div>;
 
+  const invIdx = Math.max(0, INVITES.findIndex(([v]) => v === invites));
+  const canFinish = !busy && USERNAME_RE.test(username) && uStatus !== "taken" && uStatus !== "checking";
+
   return (
     <div className="ob" dir="ltr">
       <header className="ob-top">
@@ -137,16 +114,7 @@ export default function OnboardingPage() {
         <div className="ob-bars" aria-hidden="true">{Array.from({ length: TOTAL_STEPS }, (_, d) => <span key={d} className={d < step ? "done" : d === step ? "on" : ""}><i /></span>)}</div>
         <span className="ob-step-num">{step + 1}/{TOTAL_STEPS}</span>
       </header>
-      {step === 4 && (
-        <main className={`ob-main ob-bot ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
-          <div className="ob-head">
-            <h1>Create your main bot</h1>
-            <p className="ob-sub">Your personal AI assistant. You can customize it anytime.</p>
-          </div>
-          <AgentForm lang="en" title="" cta="Create & Start" busy={busy} error={err} onSubmit={(v) => void finish(v)} onCancel={() => goStep(3)} />
-        </main>
-      )}
-      {step < 4 && <main className={`ob-main ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
+      <main className={`ob-main ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
         {step === 0 && (
           <>
             <div className="ob-head">
@@ -173,56 +141,28 @@ export default function OnboardingPage() {
             </div>
             <div className="ob-body">
               {err && <p role="alert" className="ob-err">{err}</p>}
-              <label className="ob-user">
+              <label className={`ob-user ${uStatus === "taken" ? "is-taken" : uStatus === "available" ? "is-ok" : ""}`}>
                 <span className="ob-user-at"><At size={18} weight="bold" /></span>
-                <input value={username} onChange={(e) => setUsername(normalizeUsername(e.target.value))} placeholder="username" autoCapitalize="none" autoCorrect="off" maxLength={20} disabled={hadUsername} aria-label="Username" autoFocus />
-                {USERNAME_RE.test(username) && <span className="ob-user-ok"><Check size={16} weight="bold" /></span>}
+                <input value={username} onChange={(e) => { setErr(""); setUsername(normalizeUsername(e.target.value)); }} placeholder="username" autoCapitalize="none" autoCorrect="off" maxLength={20} disabled={hadUsername} aria-label="Username" autoFocus />
+                {uStatus === "checking" && <span className="ob-user-spin"><CircleNotch size={18} weight="bold" /></span>}
+                {uStatus === "available" && <span className="ob-user-ok"><Check size={15} weight="bold" /></span>}
+                {uStatus === "taken" && <span className="ob-user-no"><X size={15} weight="bold" /></span>}
               </label>
-              <p className="ob-hint">{hadUsername ? "Your username is set" : "3–20 lowercase letters, numbers or _"}</p>
+              <p className={`ob-hint ${uStatus === "taken" ? "is-taken" : uStatus === "available" ? "is-ok" : ""}`}>
+                {hadUsername ? "Your username is set" : uStatus === "checking" ? "Checking availability…" : uStatus === "taken" ? `@${username} is already taken` : uStatus === "available" ? `@${username} is available` : "3–20 lowercase letters, numbers or _"}
+              </p>
               <div className="ob-card">
                 <p className="ob-label"><Users size={15} weight="duotone" /> Who can add you to groups?</p>
                 <div className="ob-seg" role="radiogroup" aria-label="Who can add you to groups">
-                  {([["everyone", "Everyone"], ["contacts", "Contacts"], ["nobody", "Nobody"]] as const).map(([v, t]) => <button type="button" key={v} role="radio" aria-checked={invites === v} className={invites === v ? "on" : ""} onClick={() => setInvites(v)}>{t}</button>)}
+                  <span className="ob-seg-thumb" style={{ transform: `translateX(${invIdx * 100}%)` }} aria-hidden="true" />
+                  {INVITES.map(([v, t]) => <button type="button" key={v} role="radio" aria-checked={invites === v} className={invites === v ? "on" : ""} onClick={() => setInvites(v)}>{t}</button>)}
                 </div>
               </div>
             </div>
-            <Button variant="neutral" className="ob-btn" disabled={busy || !USERNAME_RE.test(username)} onClick={() => void saveIdentity()}>{busy ? "Saving…" : "Continue"}</Button>
+            <Button variant="neutral" className="ob-btn" disabled={!canFinish} onClick={() => void finish()}>{busy ? "Starting…" : "Get Started"}</Button>
           </>
         )}
-        {step === 2 && (
-          <>
-            <div className="ob-head">
-              <h1>How old are you?</h1>
-              <p className="ob-sub">Helps tailor your experience and safety settings.</p>
-            </div>
-            <div className="ob-body ob-body-center">
-              <div className="ob-age-pill" aria-live="polite">{age} <span>years</span></div>
-              <AgeWheel value={age} onChange={setAge} />
-            </div>
-            <Button variant="neutral" className="ob-btn" onClick={() => goStep(3)}>Continue</Button>
-          </>
-        )}
-        {step === 3 && (
-          <>
-            <div className="ob-head">
-              <h1>What do you do?</h1>
-              <p className="ob-sub">We'll tune your bots to match your workflow.</p>
-            </div>
-            <div className="ob-body">
-              <div className="ob-opts">
-                {TYPES.map(({ id, t, I, tone }, i) => (
-                  <Button variant="ghost" key={id} aria-pressed={type === id} data-tone={tone} className={`ob-opt ${type === id ? "on" : ""}`} style={{ animationDelay: `${0.04 + i * 0.05}s` }} onClick={() => setType(id)}>
-                    <span className="ob-opt-ico"><I size={22} weight="duotone" /></span>
-                    <span className="ob-opt-txt">{t}</span>
-                    <span className="ob-opt-chk" aria-hidden="true"><Check size={13} weight="bold" /></span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <Button variant="neutral" className="ob-btn" disabled={!type} onClick={() => goStep(4)}>Continue</Button>
-          </>
-        )}
-      </main>}
+      </main>
     </div>
   );
 }
