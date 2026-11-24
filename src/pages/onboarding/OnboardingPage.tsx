@@ -1,22 +1,23 @@
 /** First-run setup: profile → what you do → create your primary bot. */
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, User, Code2, Palette, GraduationCap, Briefcase, Clapperboard, HelpCircle, ArrowLeft } from "lucide-react";
+import { Camera, User, Code, Palette, GraduationCap, Briefcase, FilmSlate, Sparkle, CaretLeft } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import { forceDarkTheme } from "@/lib/theme";
 import { AgentForm, type AgentFormValue } from "@/pages/agent/hub/HubPanels";
 import { Button } from "@/components/ui/button";
+import { loadPaywallFont } from "@/lib/paywallFont";
 import "@/styles/onboarding.css";
 import { toAvatar } from "@/lib/profile/avatar";
 import { peopleApi, normalizeUsername, USERNAME_RE } from "@/lib/people/peopleApi";
 
 const TYPES = [
-  { id: "developer", t: "Developer", I: Code2 },
+  { id: "developer", t: "Developer", I: Code },
   { id: "designer", t: "Designer", I: Palette },
   { id: "student", t: "Student", I: GraduationCap },
   { id: "business", t: "Business owner", I: Briefcase },
-  { id: "creator", t: "Content creator", I: Clapperboard },
-  { id: "other", t: "Something else", I: HelpCircle },
+  { id: "creator", t: "Content creator", I: FilmSlate },
+  { id: "other", t: "Something else", I: Sparkle },
 ];
 const AGES = Array.from({ length: 108 }, (_, i) => i + 13);
 const ROW = 48;
@@ -54,6 +55,7 @@ export default function OnboardingPage() {
   const nav = useNavigate();
   const [uid, setUid] = useState<string | null>(null);
   const [step, setStep] = useState(0);
+  const [dir, setDir] = useState(1);
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState<string | null>(null);
   const [age, setAge] = useState(22);
@@ -68,7 +70,8 @@ export default function OnboardingPage() {
   const [retry, setRetry] = useState(0);
   const file = useRef<HTMLInputElement>(null);
 
-  useEffect(() => forceDarkTheme(), []);
+  const goStep = (n: number) => { setDir(n >= step ? 1 : -1); setStep(n); };
+  useEffect(() => { loadPaywallFont(); return forceDarkTheme(); }, []);
   useEffect(() => {
     let alive = true;
     setLoading(true); setLoadError("");
@@ -102,7 +105,7 @@ export default function OnboardingPage() {
       if (!hadUsername) { await peopleApi.setUsername(username); setHadUsername(true); }
       const { error } = await supabase.from("profiles").update({ group_invites: invites } as never).eq("id", uid);
       if (error) throw error;
-      setStep(1);
+      goStep(1);
     } catch (e) { setErr(e instanceof Error && /taken|exist|duplicate/i.test(e.message) ? "That username is taken. Try another." : "Couldn't save. Try again."); }
     finally { setBusy(false); }
   };
@@ -128,29 +131,30 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob" dir="ltr">
+      <div className="ob-glow" data-step={step} aria-hidden="true" />
       <header className="ob-top">
-        {step > 0 ? <Button variant="ghost" size="icon" className="ob-back" disabled={busy} onClick={() => setStep(step - 1)} aria-label="Back"><ArrowLeft size={20} /></Button> : <span style={{ width: 40 }} />}
-        <div className="ob-dots">{[0, 1, 2].map((d) => <span key={d} className={d === step ? "on" : ""} />)}</div>
-        <span style={{ width: 40 }} />
+        {step > 0 ? <Button variant="ghost" size="icon" className="ob-back" disabled={busy} onClick={() => goStep(step - 1)} aria-label="Back"><CaretLeft size={20} weight="bold" /></Button> : <span className="ob-spacer" />}
+        <div className="ob-bars" aria-hidden="true">{[0, 1, 2].map((d) => <span key={d} className={d < step ? "done" : d === step ? "on" : ""}><i /></span>)}</div>
+        <span className="ob-step-num">{step + 1}/3</span>
       </header>
       {step === 2 && (
-        <main className="ob-main ob-bot" key={step}>
+        <main className={`ob-main ob-bot ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
           <h1>Create your main bot</h1>
           <p className="ob-sub">Your main assistant. You can change it anytime.</p>
-          <AgentForm lang="en" title="" cta="Create" busy={busy} error={err} onSubmit={(v) => void finish(v)} onCancel={() => setStep(1)} />
+          <AgentForm lang="en" title="" cta="Create" busy={busy} error={err} onSubmit={(v) => void finish(v)} onCancel={() => goStep(1)} />
         </main>
       )}
-      {step < 2 && <main className="ob-main" key={step}>
+      {step < 2 && <main className={`ob-main ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
         {step === 0 && (
           <>
             <h1>Tell us about you</h1>
             <p className="ob-sub">So your bots know who they're helping.</p>
             <Button variant="ghost" type="button" className="ob-photo" onClick={() => file.current?.click()} aria-label="Your photo">
-              {avatar ? <img src={avatar} alt="" /> : <span className="ob-initial">{name.trim()[0]?.toUpperCase() || <User size={34} />}</span>}
-              <span className="ob-photo-badge"><Camera size={14} /></span>
+              {avatar ? <img src={avatar} alt="" /> : <span className="ob-initial">{name.trim()[0]?.toUpperCase() || <User size={34} weight="duotone" />}</span>}
+              <span className="ob-photo-badge"><Camera size={14} weight="bold" /></span>
             </Button>
             <input ref={file} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) { try { setAvatar(await toAvatar(f)); setErr(""); } catch { setErr("Couldn't open this photo. Choose another image."); } } }} />
-            {err && <p role="alert">{err}</p>}
+            {err && <p role="alert" className="ob-err">{err}</p>}
             <input className="ob-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={40} />
             <label className="ob-user"><span>@</span><input value={username} onChange={(e) => setUsername(normalizeUsername(e.target.value))} placeholder="username" autoCapitalize="none" autoCorrect="off" maxLength={20} disabled={hadUsername} aria-label="Username" /></label>
             <p className="ob-hint">{hadUsername ? "Your username" : "3–20 lowercase letters, numbers or _. People find you with it."}</p>
@@ -168,11 +172,14 @@ export default function OnboardingPage() {
             <h1>What do you do?</h1>
             <p className="ob-sub">We'll tune your bots to fit you.</p>
             <div className="ob-opts">
-              {TYPES.map(({ id, t, I }) => (
-                <Button variant="ghost" key={id} aria-pressed={type === id} className={`ob-opt ${type === id ? "on" : ""}`} onClick={() => setType(id)}><I size={22} />{t}</Button>
+              {TYPES.map(({ id, t, I }, i) => (
+                <Button variant="ghost" key={id} aria-pressed={type === id} className={`ob-opt ${type === id ? "on" : ""}`} style={{ animationDelay: `${0.05 + i * 0.05}s` }} onClick={() => setType(id)}>
+                  <I size={24} weight="duotone" className="ob-opt-ico" />
+                  <span>{t}</span>
+                </Button>
               ))}
             </div>
-            <Button variant="neutral" className="ob-btn" disabled={!type} onClick={() => setStep(2)}>Continue</Button>
+            <Button variant="neutral" className="ob-btn" disabled={!type} onClick={() => goStep(2)}>Continue</Button>
           </>
         )}
       </main>}

@@ -55,7 +55,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   const t = (a: string, e: string) => (ar ? a : e);
   const close = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } setOpen(false); onDone?.(); };
   const go = (n: number) => { if (n < 0 || n > 2) return; setDir(n > step ? 1 : -1); setStep(n); };
-  const goPlans = () => { close(); nav({ to: "/settings/plans" }); };
+  const goAuth = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } setOpen(false); nav({ to: "/auth" }); };
   const send = (i: number) => { if (sent != null) return; navigator.vibrate?.(10); setSent(i); setTimeout(() => { setSent(null); go(1); }, 520); };
   const fwd = ar ? -1 : 1;
 
@@ -150,8 +150,8 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         <button type="button" className="wt-next" onClick={() => go(step + 1)}>{t("كمّل", "Continue")}</button>
       ) : (
         <div className="wt-pro-actions">
-          <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
-          <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
+          <button type="button" className="wt-pro-btn" onClick={goAuth}>{t("شوف الباقات", "See plans")}</button>
+          <button type="button" className="wt-free" onClick={goAuth}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
         </div>
       )}
     </div>
