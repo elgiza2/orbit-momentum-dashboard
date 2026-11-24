@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { Desktop, UsersThree, PlugsConnected, ClockCountdown } from "@phosphor-icons/react";
 import { AgentOrb, type OrbState } from "@/components/agent/AgentOrb";
 import type { AgentColor } from "@/lib/agentsky/client";
 import "@/styles/agent.css";
@@ -21,6 +22,21 @@ const GROUP_MSGS: { color: AgentColor; state: OrbState; accent: string; en: stri
   { color: "ocean", state: "talking", accent: "#86ece8", en: "Phone", ar: "الهاتف", msg: { en: "Called the client — confirmed for 3:00 PM.", ar: "كلمت العميل وأكدنا الميعاد الساعة 3 العصر." } },
   { color: "ember", state: "thinking", accent: "#fca27a", en: "Apps", ar: "التطبيقات", msg: { en: "Sent the recap on Gmail and updated Notion.", ar: "بعتّ الملخص على Gmail وحدّثت Notion." } },
   { color: "aurora", state: "hello", accent: "#c4a8ff", en: "Markets", ar: "الأسواق", msg: { en: "Watching liquidity 24/7. Ready when you are.", ar: "براقب السيولة 24/7 وجاهز لأمرك." } },
+];
+
+const PRO_ORBS: { color: AgentColor; state: OrbState; size: number }[] = [
+  { color: "ocean", state: "thinking", size: 30 },
+  { color: "mint", state: "tool", size: 38 },
+  { color: "mono", state: "hello", size: 48 },
+  { color: "aurora", state: "talking", size: 38 },
+  { color: "ember", state: "idle", size: 30 },
+];
+
+const PRO_PERKS = [
+  { icon: Desktop, ar: "كمبيوتر خاص على السحابة", en: "Private cloud computer" },
+  { icon: UsersThree, ar: "فريق بوتات شغّال مع بعض", en: "Multi-bot team working together" },
+  { icon: PlugsConnected, ar: "متصفح وهاتف وتطبيقاتك كلها", en: "Browser, phone & all your apps" },
+  { icon: ClockCountdown, ar: "شغّال بدالك 24/7 وأنت نايم", en: "Runs 24/7 while you sleep" },
 ];
 
 export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
@@ -108,15 +124,24 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
 
         {step === 2 && (
           <div className="wt-pro-hero">
-            <div className="wt-pro-orb">
-              <span className="wt-pro-ring" aria-hidden="true" />
-              <span className="wt-pro-ring r2" aria-hidden="true" />
-              <AgentOrb color="mono" state="hello" size={128} />
+            <div className="wt-pro-swarm" aria-hidden="true">
+              {PRO_ORBS.map((o, i) => (
+                <span key={o.color} className="wt-pro-mini" style={{ animationDelay: `${i * 0.25}s` }}>
+                  <AgentOrb color={o.color} state={o.state} size={o.size} />
+                </span>
+              ))}
             </div>
             <div className="wt-pro-kicker">{t("دعوة خاصة", "Private invite")}</div>
             <div className="wt-brand">CEYO PRO</div>
             <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
-            <p className="wt-pro-sub">{t("فريق ذكاء اصطناعي شغّال بدالك 24/7.", "Your own AI team working for you 24/7.")}</p>
+            <div className="wt-pro-card">
+              {PRO_PERKS.map(({ icon: Icon, ar: a, en }) => (
+                <div key={en} className="wt-pro-perk">
+                  <Icon size={20} weight="duotone" className="wt-pro-ico" aria-hidden="true" />
+                  <span>{ar ? a : en}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
