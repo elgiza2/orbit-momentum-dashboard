@@ -1,0 +1,21 @@
+/* Chat input pill and the + actions sheet. */
+.cx-composer{min-height:56px;align-items:center;padding:6px;border:1px solid rgba(255,255,255,.07);border-radius:30px;background:#1c1c1c;box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.4)}
+.cx-composer .cx-circle{width:42px;height:42px;background:#2b2b2b;color:#fff}
+.cx-composer .cx-send{background:#fff;color:#000}
+.cx-sheet-backdrop{position:fixed;inset:0;z-index:80;display:flex;align-items:flex-end;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:cxFade .2s ease}
+.cx-sheet{width:100%;padding:10px 20px max(22px,env(safe-area-inset-bottom));border-radius:30px 30px 0 0;background:#0e0e0e;color:#f4f4f2;animation:cxUp .35s cubic-bezier(.32,.72,0,1)}
+.cx-sheet-grip{display:block;width:36px;height:4px;margin:0 auto 14px;border-radius:9px;background:#3a3a3a}
+.cx-sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cx-sheet-head strong{font:400 22px/1 Georgia,serif}
+.cx-sheet-head button{border:0;background:none;color:#f4f4f2;font-size:16px}
+.cx-sheet-tiles{display:flex;gap:10px}
+.cx-sheet-tiles button{display:grid;place-items:center;width:88px;height:88px;border:0;border-radius:18px;background:#2a2a2a;color:#fff}
+.cx-sheet hr{margin:18px 0 12px;border:0;border-top:1px solid #242424}
+.cx-sheet-row{display:flex;align-items:center;gap:14px;width:100%;padding:8px 0;border:0;background:none;color:inherit;text-align:start}
+.cx-sheet-row i{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:13px;color:#111;background:#ff9f7a}
+.cx-sheet-row[data-tone=media] i{background:#7ae8e8}
+.cx-sheet-row[data-tone=cam] i{background:#dcff7a}
+.cx-sheet-row b{display:block;font-weight:500;font-size:16px}
+.cx-sheet-row small{display:block;color:#8d8d8d;font-size:13.5px;margin-top:2px}
+@keyframes cxUp{from{transform:translateY(100%)}}
+@keyframes cxFade{from{opacity:0}}

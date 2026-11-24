@@ -53,6 +53,7 @@ import { ChoiceCard, ConnectAppsCard, SecretCard, readConnectApps } from "./HubC
 import { AgentProposalCard } from "@/components/agent/AgentProposalCard";
 import { orbStateFor, type AgentTurn } from "@/lib/agentsky/transcript";
 import { groupTranscript, type AgentGroup } from "./hubStorage";
+import "@/styles/composer-sheet.css";
 import { BotAvatar, HubSpinner, type HubLang } from "./HubParts";
 import { readReactions, writeReactions, REACTIONS } from "./chatPrefs";
 import { IntegrationApprovalCard } from "@/components/agent/IntegrationApprovalCard";
@@ -218,10 +219,19 @@ function Composer({
         <div className="cx-plus-wrap" ref={plusRef}>
           <button type="button" className="cx-circle" aria-label="More" onClick={() => setPlusOpen((o) => !o)}><Plus size={20} /></button>
           {plusOpen && (
-            <div className="cx-pop cx-pop-up" role="menu">
-              <button type="button" onClick={() => { fileIn.current?.click(); setPlusOpen(false); }}><Paperclip size={18} />{ar ? "اختيار ملف" : "Choose File"}</button>
-              <button type="button" onClick={() => { camIn.current?.click(); setPlusOpen(false); }}><Camera size={18} />{ar ? "التقاط صورة" : "Take Photo"}</button>
-              <button type="button" onClick={() => { mediaIn.current?.click(); setPlusOpen(false); }}><ImageIcon size={18} />{ar ? "صورة أو فيديو" : "Photo or Video"}</button>
+            <div className="cx-sheet-backdrop" onClick={() => setPlusOpen(false)}>
+            <div className="cx-sheet" role="menu" onClick={(e) => e.stopPropagation()}>
+              <span className="cx-sheet-grip" aria-hidden />
+              <div className="cx-sheet-head"><strong>{ar ? "إجراءات" : "Actions"}</strong><button type="button" onClick={() => { mediaIn.current?.click(); setPlusOpen(false); }}>{ar ? "المعرض" : "See gallery"}</button></div>
+              <div className="cx-sheet-tiles">
+                <button type="button" aria-label={ar ? "التقاط صورة" : "Take Photo"} onClick={() => { camIn.current?.click(); setPlusOpen(false); }}><Camera size={26} /></button>
+                <button type="button" aria-label={ar ? "صورة أو فيديو" : "Photo or Video"} onClick={() => { mediaIn.current?.click(); setPlusOpen(false); }}><ImageIcon size={26} /></button>
+              </div>
+              <hr />
+              <button type="button" className="cx-sheet-row" data-tone="file" onClick={() => { fileIn.current?.click(); setPlusOpen(false); }}><i><Paperclip size={20} /></i><span><b>{ar ? "إضافة ملف" : "Add file"}</b><small>{ar ? "اقرأ أو لخّص مستند" : "Look up or summarize a document"}</small></span></button>
+              <button type="button" className="cx-sheet-row" data-tone="media" onClick={() => { mediaIn.current?.click(); setPlusOpen(false); }}><i><ImageIcon size={20} /></i><span><b>{ar ? "صورة أو فيديو" : "Photo or video"}</b><small>{ar ? "اسأل عن صورة أو عدّلها" : "Ask about or edit a picture"}</small></span></button>
+              <button type="button" className="cx-sheet-row" data-tone="cam" onClick={() => { camIn.current?.click(); setPlusOpen(false); }}><i><Camera size={20} /></i><span><b>{ar ? "التقاط صورة" : "Take photo"}</b><small>{ar ? "صوّر وابعت على طول" : "Snap and send right away"}</small></span></button>
+            </div>
             </div>
           )}
         </div>

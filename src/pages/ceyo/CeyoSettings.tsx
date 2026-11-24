@@ -28,6 +28,7 @@ import { useUserLang, setUserLang, detectLang } from "@/lib/authI18n";
 import { normalizeAppLanguage } from "@/lib/i18n/bundledLocales";
 import "@/styles/subscriptions.css";
 import "@/styles/plans-paywall.css";
+import "@/styles/usage-page.css";
 import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
 import { useLocalPlanPrices } from "@/hooks/useLocalPlanPrices";
@@ -325,27 +326,41 @@ function Usage({ nav }: { nav: Nav }) {
   const usage = useUsage();
   const { plan } = usage;
   const ar = useUserLang().startsWith("ar");
+  const paid = !!usage.data?.isPaid;
+  const used = usage.data && usage.data.tokenLimit > 0 ? Math.min(100, Math.round(usage.data.tokensToday / usage.data.tokenLimit * 100)) : 0;
+  const trialUsedPct = Math.round((3 - usage.trialDays) / 3 * 100);
+  const title = paid ? `${plan.charAt(0).toUpperCase() + plan.slice(1)} plan` : (ar ? "الباقة المجانية" : "Free plan");
+  const perks = [
+    { icon: <PhLightning weight="bold" />, en: "Up to x10 more usage", ar: "استخدام أكتر لحد x10" },
+    { icon: <PhDesktop weight="bold" />, en: "Every bot gets its own computer", ar: "كل بوت ليه كمبيوتر خاص بيه" },
+    { icon: <PhUsersThree weight="bold" />, en: "Bot groups that finish whole projects", ar: "مجموعات بوتات بتخلّص مشاريع كاملة" },
+    { icon: <PhPlugs weight="bold" />, en: "Connect 1000+ apps", ar: "اربط أكتر من 1000 تطبيق" },
+    { icon: <PhPhoneCall weight="bold" />, en: "Phone and video calls with your bots", ar: "مكالمات صوت وفيديو مع البوتات" },
+  ];
   return (
-    <Shell title="Usage" back={() => nav("/settings")}>
-      {usage.isError && <Group><Row label="Could not load usage" onClick={() => void usage.refetch()} sub="Try again" /></Group>}
-      <div className="ceyo-usage-panel">
-        <div className="ceyo-usage-body">
-          <div className="ceyo-usage-head"><strong>{usage.data?.isPaid ? "Subscription" : "Free trial"}</strong><span>{usage.data?.isPaid ? "Active" : usage.data?.trialActive ? `${usage.trialDays} of 3 days left` : usage.data && !usage.data.trialUsed ? "Link a card to start" : "3 days, one time"}</span></div>
-          {!usage.data?.isPaid && <div className="ceyo-bar" role="progressbar" aria-label="Trial days used" aria-valuemin={0} aria-valuemax={3} aria-valuenow={3 - usage.trialDays}><i style={{ width: `${Math.round((3 - usage.trialDays) / 3 * 100)}%` }} /></div>}
-          <span className="ceyo-usage-percent">{usage.isPending ? "…" : usage.isError ? "Unavailable" : usage.data?.isPaid ? "Subscribed" : usage.data?.trialActive && usage.data.trialEndsAt ? `Ends ${new Date(usage.data.trialEndsAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : usage.data && !usage.data.trialUsed ? "Not started" : "Trial ended"}</span>
-        </div>
+    <div className="zu-page" dir={ar ? "rtl" : "ltr"}>
+      <button type="button" className="zu-back" aria-label={ar ? "رجوع" : "Back"} onClick={() => nav("/settings")}><PhCaretLeft weight="bold" /></button>
+      <h1 className="zu-title">{title}</h1>
+      {usage.isError && <button type="button" className="zu-card" onClick={() => void usage.refetch()}><div className="zu-row"><span>{ar ? "تعذر التحميل" : "Could not load usage"}</span><em>{ar ? "حاول تاني" : "Try again"}</em></div></button>}
+      <div className="zu-card">
+        <div className="zu-row"><span>{ar ? "استخدام الباقة" : "Plan usage"}</span><em>{usage.isPending ? "…" : paid ? (ar ? "مفتوح" : "Unlimited") : ar ? `${used}% مستخدم` : `${used}% used`}</em></div>
+        <div className="zu-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={paid ? 0 : used}><i style={{ width: `${paid ? 0 : used}%` }} /></div>
       </div>
-      <Group title="Plan">
-        <Row label="Current plan" value={plan.charAt(0).toUpperCase() + plan.slice(1)} right={<span />} />
-      </Group>
-      {usage.data?.trialActive && <p className="ceyo-note" role="status">{ar ? `استخدام النهارده: ${usage.data.tokensToday.toLocaleString("ar")} من ${usage.data.tokenLimit.toLocaleString("ar")} توكن. معظم المميزات محدودة في التجربة، والقوة الكاملة مع الاشتراك.` : `Today: ${usage.data.tokensToday.toLocaleString()} of ${usage.data.tokenLimit.toLocaleString()} tokens. Most features are limited during the trial; full power comes with the subscription.`}</p>}
-      {usage.exhausted && usage.data && <p className="ceyo-note" role="alert">{usageMessageText(blockedMessage(usage.data), ar)}</p>}
-      <Group>
-        <Row label={ar ? "اشترك" : "Subscribe"} onClick={() => nav("/settings/plans")} />
-        <Row label="Manage subscription" onClick={() => nav("/settings/subscription")} />
-        <Row label="Usage alerts" sub="Not available yet" disabled right={<Toggle on={false} />} />
-      </Group>
-    </Shell>
+      {!paid && <div className="zu-card">
+        <div className="zu-row"><span>{ar ? "التجربة المجانية" : "Free trial"}</span><em>{usage.data?.trialActive ? (ar ? `باقي ${usage.trialDays} من 3 أيام` : `${usage.trialDays} of 3 days left`) : usage.data && !usage.data.trialUsed ? (ar ? "لم تبدأ" : "Not started") : (ar ? "انتهت" : "Ended")}</em></div>
+        <div className="zu-bar"><i style={{ width: `${usage.data?.trialActive ? trialUsedPct : usage.data?.trialUsed ? 100 : 0}%` }} /></div>
+      </div>}
+      {usage.exhausted && usage.data && <p className="zu-note" role="alert">{usageMessageText(blockedMessage(usage.data), ar)}</p>}
+      {paid ? (
+        <button type="button" className="zu-manage" onClick={() => nav("/settings/subscription")}>{ar ? "إدارة الاشتراك" : "Manage subscription"}</button>
+      ) : <>
+        <div className="zu-pitch"><h2>{ar ? "افتح أقوى ما في Ceyo" : "Unlock the best of Ceyo"}</h2><p>{ar ? "جرّبه مجانًا دلوقتي" : "Try it free now"}</p></div>
+        <div className="zu-offer">
+          <ul>{perks.map((f) => <li key={f.en}><span aria-hidden>{f.icon}</span>{ar ? f.ar : f.en}</li>)}</ul>
+          <button type="button" onClick={() => nav("/settings/plans")}>{ar ? "شوف الباقات" : "See plans"}</button>
+        </div>
+      </>}
+    </div>
   );
 }
 
