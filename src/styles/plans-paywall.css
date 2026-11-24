@@ -17,23 +17,27 @@
 .ceyo-paywall .paywall-top{display:flex;justify-content:flex-start;flex:none;margin-bottom:auto}
 .ceyo-paywall .paywall-close{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:var(--subscription-raised);color:var(--subscription-ink);cursor:pointer;transition:transform .15s ease,background .2s ease}
 .ceyo-paywall .paywall-close:active{transform:scale(.92)}
-.ceyo-paywall .paywall-top{align-items:center;justify-content:space-between}
-/* One Yearly switch for every plan, iOS toggle look. */
-.ceyo-paywall .paywall-yearly{display:flex;align-items:center;gap:10px;height:40px;padding:0 6px 0 14px;border:0;border-radius:999px;background:var(--subscription-raised);color:var(--subscription-ink);font:500 14px/1 var(--pw-body);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.ceyo-paywall[dir=rtl] .paywall-yearly{padding:0 14px 0 6px}
-.ceyo-paywall .paywall-yearly>span{display:flex;align-items:center;gap:6px}
-.ceyo-paywall .paywall-yearly em{font-style:normal;font-size:12px;padding:3px 7px;border-radius:999px;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
-.ceyo-paywall .paywall-yearly i{--k:24px;position:relative;width:46px;height:28px;border-radius:999px;background:var(--subscription-line);transition:background-color .3s ease}
-.ceyo-paywall .paywall-yearly i::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:var(--k);height:var(--k);border-radius:50%;background:var(--subscription-ink);box-shadow:0 2px 6px rgb(0 0 0 / 30%);transition:transform .45s cubic-bezier(.32,.72,0,1),width .2s ease}
-.ceyo-paywall .paywall-yearly:active i::after{width:30px}
-.ceyo-paywall .paywall-yearly[aria-checked=true] i{background:var(--pw-tier)}
-.ceyo-paywall .paywall-yearly[aria-checked=true] i::after{transform:translateX(calc(18px * var(--sdir,1)))}
-.ceyo-paywall .paywall-yearly[aria-checked=true]:active i::after{transform:translateX(calc(12px * var(--sdir,1)))}
+/* Yearly switch sits in the card, right above the main button (easy thumb reach). */
+.ceyo-paywall .paywall-yearly{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:6px 6px 6px 16px;border:0;border-radius:18px;background:var(--pw-on-tier-line);color:var(--pw-on-tier);font:500 15px/1 var(--pw-body);cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:start}
+.ceyo-paywall[dir=rtl] .paywall-yearly{padding:6px 16px 6px 6px}
+.ceyo-paywall .paywall-yearly>span{display:flex;align-items:center;gap:8px}
+.ceyo-paywall .paywall-yearly em{font-style:normal;font-size:12px;font-weight:600;padding:4px 8px;border-radius:999px;background:var(--pw-on-tier);color:var(--pw-tier);transition:color .35s ease}
+.ceyo-paywall .paywall-yearly i{--k:26px;position:relative;flex:none;width:50px;height:30px;border-radius:999px;background:rgb(10 10 10 / 22%);transition:background-color .3s ease}
+.ceyo-paywall .paywall-yearly i::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:var(--k);height:var(--k);border-radius:999px;background:#fff;box-shadow:0 2px 6px rgb(0 0 0 / 25%);transition:transform .45s cubic-bezier(.32,.72,0,1),width .2s ease}
+.ceyo-paywall .paywall-yearly:active i::after{width:32px}
+.ceyo-paywall .paywall-yearly[aria-checked=true] i{background:var(--pw-on-tier)}
+.ceyo-paywall .paywall-yearly[aria-checked=true] i::after{transform:translateX(calc(20px * var(--sdir,1)))}
+.ceyo-paywall .paywall-yearly[aria-checked=true]:active i::after{transform:translateX(calc(14px * var(--sdir,1)))}
 .ceyo-paywall[dir=rtl] .paywall-yearly{--sdir:-1}
+.ceyo-paywall[dir=rtl] .paywall-back svg{transform:scaleX(-1)}
+/* How much usage this plan gets compared with Plus. */
+.ceyo-paywall .paywall-usage{display:inline-flex;align-items:center;gap:6px;flex:none;padding:7px 12px 7px 10px;border-radius:999px;background:var(--pw-on-tier);color:var(--pw-tier);font-size:14px;font-weight:500;transition:color .35s ease}
+.ceyo-paywall .paywall-usage-x{font:400 20px/1 var(--pw-display)}
+.ceyo-paywall .paywall-usage-bolt{width:16px;height:16px}
 .ceyo-paywall .paywall-close svg{width:20px;height:20px}
 
 /* Block wordmark: every letter sits on its own rounded tile. */
-.ceyo-paywall .paywall-mark{--tile:min(60px,calc((100vw - 64px) / 5.3),6.1dvh);display:flex;flex-direction:column;align-items:center;gap:5px;margin:clamp(4px,1.4dvh,18px) 0 clamp(8px,1.8dvh,22px)}
+.ceyo-paywall .paywall-mark{--tile:min(60px,calc((100vw - 64px) / 5.3),5.8dvh);display:flex;flex-direction:column;align-items:center;gap:5px;margin:clamp(4px,1.4dvh,18px) 0 clamp(8px,1.8dvh,22px)}
 .ceyo-paywall .paywall-row{display:flex;gap:5px}
 .ceyo-paywall .paywall-row i{display:grid;place-items:center;width:var(--tile);height:var(--tile);border-radius:calc(var(--tile) * .16);font:normal 400 calc(var(--tile) * .66)/1 var(--pw-display);letter-spacing:0;transition:background-color .35s ease,color .35s ease}
 .ceyo-paywall .paywall-row-brand i{background:var(--subscription-ink);color:var(--subscription-bg)}
@@ -51,22 +55,22 @@
 .ceyo-paywall .paywall-tabs button:active{transform:scale(.95)}
 .ceyo-paywall .paywall-tabs button[aria-selected=true]{color:var(--subscription-ink)}
 
-.ceyo-paywall .paywall-card{display:flex;flex-direction:column;gap:clamp(10px,1.8dvh,18px);flex:none;padding:clamp(16px,2.6dvh,24px) 20px clamp(16px,2.4dvh,22px);border-radius:30px;touch-action:pan-y;overflow:hidden;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
-.ceyo-paywall .paywall-card-body{display:flex;flex-direction:column;gap:clamp(10px,1.8dvh,16px);animation:pw-in-next .45s cubic-bezier(.32,.72,0,1) both}
+.ceyo-paywall .paywall-card{display:flex;flex-direction:column;gap:clamp(8px,1.4dvh,18px);flex:none;padding:clamp(14px,2.3dvh,24px) 20px clamp(14px,2.2dvh,22px);border-radius:30px;touch-action:pan-y;overflow:hidden;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
+.ceyo-paywall .paywall-card-body{display:flex;flex-direction:column;gap:clamp(8px,1.4dvh,16px);animation:pw-in-next .45s cubic-bezier(.32,.72,0,1) both}
 .ceyo-paywall .paywall-card-body[data-slide=prev]{animation-name:pw-in-prev}
 @keyframes pw-in-next{from{opacity:0;transform:translateX(calc(28px * var(--dir,1)))}to{opacity:1;transform:none}}
 @keyframes pw-in-prev{from{opacity:0;transform:translateX(calc(-28px * var(--dir,1)))}to{opacity:1;transform:none}}
 .ceyo-paywall[dir=rtl] .paywall-card-body{--dir:-1}
-.ceyo-paywall .paywall-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.ceyo-paywall .paywall-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .ceyo-paywall .paywall-price{display:flex;align-items:baseline;gap:2px;margin:0;min-width:0}
 .ceyo-paywall .paywall-price strong{font-size:clamp(22px,3.2dvh,26px);line-height:1.1;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
 .ceyo-paywall .paywall-price span{font-size:16px;color:var(--pw-on-tier-soft)}
 .ceyo-paywall .paywall-card-name{font:400 clamp(24px,3.6dvh,30px)/1 var(--pw-display)}
 
-.ceyo-paywall .paywall-features{display:flex;flex-direction:column;gap:clamp(7px,1.4dvh,14px);margin:0;padding:0;list-style:none}
+.ceyo-paywall .paywall-features{display:flex;flex-direction:column;gap:clamp(5px,.9dvh,12px);margin:0;padding:0;list-style:none}
 .ceyo-paywall .paywall-features li{display:flex;align-items:center;gap:12px;font-size:clamp(14px,2.05dvh,16px);line-height:1.35;font-weight:400}
-.ceyo-paywall .paywall-ico{display:grid;place-items:center;flex:none;width:22px;height:22px;background:none}
-.ceyo-paywall .paywall-ico svg{width:21px;height:21px;stroke-width:2.1}
+.ceyo-paywall .paywall-ico{display:grid;place-items:center;flex:none;width:24px;height:24px;background:none}
+.ceyo-paywall .paywall-ico svg{width:24px;height:24px}
 
 .ceyo-paywall .paywall-cta{width:100%;min-height:clamp(46px,6.6dvh,56px);border:0;border-radius:999px;background:var(--pw-on-tier);color:var(--pw-tier);font:500 17px/1.2 var(--pw-body);cursor:pointer;transition:transform .15s ease,opacity .2s ease,color .35s ease}
 .ceyo-paywall .paywall-cta:active{transform:scale(.98)}
@@ -93,6 +97,9 @@
   .ceyo-paywall .paywall-tagline{font-size:14px;margin-bottom:8px}
   .ceyo-paywall .paywall-features{gap:6px}
   .ceyo-paywall .paywall-features li{font-size:14px}
-  .ceyo-paywall .paywall-card{padding:14px 18px;gap:10px}
+  .ceyo-paywall .paywall-card{padding:14px 18px;gap:8px}
+  .ceyo-paywall .paywall-card-body{gap:8px}
+  .ceyo-paywall .paywall-features{gap:4px}
+  .ceyo-paywall .paywall-yearly{min-height:40px;padding-block:4px}
   .ceyo-paywall .paywall-fine{font-size:12px}
 }

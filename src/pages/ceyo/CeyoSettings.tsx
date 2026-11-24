@@ -35,6 +35,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isPlayApp } from "@/lib/native/playBilling";
 import { formatLocalPrice } from "@/lib/payments/localPrices";
 import { priceOf } from "@/lib/payments/plans";
+import { Desktop as PhDesktop, UsersThree as PhUsersThree, Globe as PhGlobe, Plugs as PhPlugs, PhoneCall as PhPhoneCall, MoonStars as PhMoonStars, CaretLeft as PhCaretLeft, Lightning as PhLightning } from "@phosphor-icons/react";
 import { readSetting, saveSetting } from "./settingsStorage";
 import { updateMyProfile, usernameAvailable, useMyProfile } from "@/lib/profile/myProfile";
 import { toAvatar } from "@/lib/profile/avatar";
@@ -404,14 +405,16 @@ const PLAN_TAGLINES: Record<(typeof PLANS)[number]["id"], { en: string; ar: stri
   pro: { en: "Hand over whole projects and let your bots finish them.", ar: "سلّم مشاريع كاملة وسيب البوتات تخلّصها." },
   ultra: { en: "Delegate everything to a team that keeps working.", ar: "سيب كل حاجة على فريق بيفضل شغال." },
 };
-/** Real Ceyo capabilities (same as the landing page); no invented per-plan limits. */
+/** Usage each plan gets compared with Plus (owner-set). */
+const PLAN_USAGE: Record<(typeof PLANS)[number]["id"], number> = { plus: 1, pro: 4, ultra: 10 };
+/** Real Ceyo capabilities (same as the landing page). */
 const PLAN_FEATURES: { icon: ReactNode; en: string; ar: string }[] = [
-  { icon: <Monitor />, en: "Every bot has its own computer", ar: "كل بوت ليه كمبيوتر خاص بيه" },
-  { icon: <Users />, en: "Bot groups that finish whole projects", ar: "مجموعات بوتات بتخلّص مشاريع كاملة" },
-  { icon: <Globe />, en: "Browses the web for you", ar: "بيتصفح النت بدالك" },
-  { icon: <Plug />, en: "Connects to 1,000+ apps", ar: "بيتربط بأكتر من 1000 تطبيق" },
-  { icon: <PhoneIcon />, en: "Phone and video calls", ar: "مكالمات تليفون وفيديو" },
-  { icon: <CalendarClock />, en: "Routines that run while you sleep", ar: "مهام متكررة بتشتغل وانت نايم" },
+  { icon: <PhDesktop weight="duotone" />, en: "Every bot has its own computer", ar: "كل بوت ليه كمبيوتر خاص بيه" },
+  { icon: <PhUsersThree weight="duotone" />, en: "Bot groups that finish whole projects", ar: "مجموعات بوتات بتخلّص مشاريع كاملة" },
+  { icon: <PhGlobe weight="duotone" />, en: "Browses the web for you", ar: "بيتصفح النت بدالك" },
+  { icon: <PhPlugs weight="duotone" />, en: "Connects to 1,000+ apps", ar: "بيتربط بأكتر من 1000 تطبيق" },
+  { icon: <PhPhoneCall weight="duotone" />, en: "Phone and video calls", ar: "مكالمات تليفون وفيديو" },
+  { icon: <PhMoonStars weight="duotone" />, en: "Routines that run while you sleep", ar: "مهام متكررة بتشتغل وانت نايم" },
 ];
 
 type CardBilling = { tier: string; interval: string; status: string; nextChargeAt: string | null; cardLast4: string | null } | null;
@@ -483,11 +486,7 @@ function Plans({ nav }: { nav: Nav }) {
     <div className="agent-hub ceyo-page subscription-page ceyo-paywall" data-tier={p.id} dir={ar ? "rtl" : "ltr"}>
       <div className="paywall-scroll">
         <header className="paywall-top">
-          <button type="button" className="paywall-close" aria-label={ar ? "إغلاق" : "Close"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><X /></button>
-          <button type="button" role="switch" aria-checked={wantYearly} className="paywall-yearly" onClick={() => setWantYearly((v) => !v)}>
-            <span>{ar ? "سنوي" : "Yearly"}{bestSaving > 0 && <em>{ar ? `وفّر ${bestSaving}%` : `Save ${bestSaving}%`}</em>}</span>
-            <i aria-hidden />
-          </button>
+          <button type="button" className="paywall-close paywall-back" aria-label={ar ? "رجوع" : "Back"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><PhCaretLeft weight="bold" /></button>
         </header>
         <h1 className="paywall-mark" aria-label={`Ceyo ${p.name}`} dir="ltr">
           <span className="paywall-row paywall-row-brand" aria-hidden>{"CEYO".split("").map((c, i) => <i key={i}>{c}</i>)}</span>
@@ -511,10 +510,18 @@ function Plans({ nav }: { nav: Nav }) {
           <div className="paywall-card-body" key={p.id} data-slide={slide}>
           <div className="paywall-card-head">
             <p className="paywall-price" dir="auto"><strong>{shownPrice}</strong><span>{per}</span></p>
-            <span className="paywall-card-name">{p.name}</span>
+            <span className="paywall-usage" aria-label={PLAN_USAGE[p.id] === 1 ? (ar ? "الاستخدام الأساسي" : "Standard usage") : (ar ? `استخدام ${PLAN_USAGE[p.id]} أضعاف Plus` : `${PLAN_USAGE[p.id]} times the usage of Plus`)}>
+              <PhLightning weight="fill" aria-hidden className="paywall-usage-bolt" />
+              <span className="paywall-usage-x" dir="ltr">x{PLAN_USAGE[p.id]}</span>
+              <span>{ar ? "استخدام" : "usage"}</span>
+            </span>
           </div>
           <ul className="paywall-features">{PLAN_FEATURES.map((f) => <li key={f.en}><span className="paywall-ico">{f.icon}</span><span>{ar ? f.ar : f.en}</span></li>)}</ul>
           </div>
+          <button type="button" role="switch" aria-checked={wantYearly} className="paywall-yearly" onClick={() => setWantYearly((v) => !v)}>
+            <span>{ar ? "ادفع سنوي" : "Pay yearly"}{bestSaving > 0 && <em>{ar ? `وفّر ${bestSaving}%` : `Save ${bestSaving}%`}</em>}</span>
+            <i aria-hidden />
+          </button>
           {canTrial && !current ? (
             <button type="button" className="paywall-cta" disabled={!localPrices.ready} onClick={() => (web ? setTrialPaying(true) : setPaying(true))}>
               <span>{ar ? "ابدأ ٣ أيام مجانًا" : "Start 3 days free"}</span>

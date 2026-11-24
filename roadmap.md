@@ -2,6 +2,7 @@
 - [x] Clean paywall like the owner's reference: block wordmark, one bright colour per plan, real Ceyo features, focus on fonts and colours.
 - [x] Plans page: icons without background, fits one screen (no scrolling), real Ceyo features, iOS-style sliding plan tabs.
 - [x] One Yearly switch for all three plans (Pro $599/yr, Ultra $1,199/yr).
+- [x] Plans page: yearly switch moved above the main button, back button instead of X, x1/x4/x10 usage badge (display only), new icons.
 - [ ] Create Google Play yearly products for Pro and Ultra — needs the owner's Play Console access.
 
 ## People chat additions — 2026-11-22
