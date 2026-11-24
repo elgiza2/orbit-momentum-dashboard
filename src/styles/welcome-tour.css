@@ -88,9 +88,7 @@
 @keyframes wt-fill{from{transform:scaleX(0)}}
 /* slide 3 */
 .wt-head-pro .wt-brand span{color:var(--lime);text-shadow:0 0 28px #dcfc7c55}
-.wt-limited{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;padding:6px 14px 6px 6px;border-radius:999px;background:#161618;border:1px solid #ffffff14;font-size:13px;color:#fffc}
-[dir=rtl] .wt-limited{padding:6px 6px 6px 14px}
-.wt-limited b{background:var(--lime);color:#0b0b0c;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px}
+.wt-limited{margin-top:14px;font-size:21px;font-weight:700;line-height:1.35;color:#fff;letter-spacing:-.01em}
 .wt-procard{background:var(--lime);position:relative;overflow:hidden}
 .wt-procard::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,#ffffffa0,transparent);transform:skewX(-20deg);animation:wt-sweep 3.5s ease-in-out 1s infinite;pointer-events:none}
 @keyframes wt-sweep{0%{left:-60%}40%,100%{left:130%}}

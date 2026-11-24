@@ -116,8 +116,8 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         {step === 2 && (
           <>
             <div className="wt-head wt-head-pro">
-              <div className="wt-limited"><b>{t("محدود", "Limited")}</b><span>{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</span></div>
               <div className="wt-brand">CEYO <span>PRO</span></div>
+              <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
               <p>{t("سلّم شغلك وحياتك لعقل بيشتغل من غير حدود.", "Hand your work and life to a mind with no limits.")}</p>
             </div>
             <div className="wt-procard">
