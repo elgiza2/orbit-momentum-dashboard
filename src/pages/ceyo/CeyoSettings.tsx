@@ -31,6 +31,7 @@ import { isNativeApp } from "@/lib/native/bridge";
 import "@/styles/subscriptions.css";
 import "@/styles/plans-paywall.css";
 import "@/styles/usage-page.css";
+import "@/styles/ai-permissions.css";
 import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
 import { useLocalPlanPrices } from "@/hooks/useLocalPlanPrices";
@@ -39,7 +40,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isPlayApp } from "@/lib/native/playBilling";
 import { formatLocalPrice } from "@/lib/payments/localPrices";
 import { priceOf } from "@/lib/payments/plans";
-import { Desktop as PhDesktop, UsersThree as PhUsersThree, Globe as PhGlobe, Plugs as PhPlugs, PhoneCall as PhPhoneCall, MoonStars as PhMoonStars, CaretLeft as PhCaretLeft, Lightning as PhLightning } from "@phosphor-icons/react";
+import { Desktop as PhDesktop, UsersThree as PhUsersThree, Globe as PhGlobe, Plugs as PhPlugs, PhoneCall as PhPhoneCall, MoonStars as PhMoonStars, CaretLeft as PhCaretLeft, Lightning as PhLightning, BellRinging as PhBellRinging, AddressBook as PhAddressBook, MapPin as PhMapPin, Microphone as PhMicrophone, BellSimpleZ as PhBellSimpleZ, Alarm as PhAlarm, Stack as PhStack, BatteryCharging as PhBatteryCharging, Robot as PhRobot } from "@phosphor-icons/react";
 import { readSetting, saveSetting } from "./settingsStorage";
 import { updateMyProfile, usernameAvailable, useMyProfile } from "@/lib/profile/myProfile";
 import { toAvatar } from "@/lib/profile/avatar";
@@ -857,9 +858,6 @@ function Computer({ nav }: { nav: Nav }) {
 
 function Permissions({ nav }: { nav: Nav }) {
   const ar = useUserLang().startsWith("ar");
-  const [preferences, setPreferences] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
-  const [adding, setAdding] = useState<PermissionRuleKind | null>(null);
-  const [text, setText] = useState("");
   const [promptKind, setPromptKind] = useState<PermissionPromptKind | null>(null);
   const [notifState, setNotifState] = useState<string>("default");
   const [locGranted, setLocGranted] = useState(false);
@@ -877,10 +875,7 @@ function Permissions({ nav }: { nav: Nav }) {
     } catch { /* ignore */ }
   };
 
-  useEffect(() => {
-    setPreferences(parsePermissionPreferences(readSetting(PERMISSIONS_STORAGE_KEY)));
-    refreshDevice();
-  }, []);
+  useEffect(() => { refreshDevice(); }, []);
 
   const requestMicCam = async () => {
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
@@ -906,21 +901,29 @@ function Permissions({ nav }: { nav: Nav }) {
     phoneOpenSettings(which);
   };
 
-  const save = (next: PermissionPreferences) => { if (!saveSetting(PERMISSIONS_STORAGE_KEY, JSON.stringify(next))) { toast.error("Could not save this preference on your device."); return false; } setPreferences(next); return true; };
-  const add = () => {
-    if (!adding || !text.trim()) return;
-    if (!save(addPermissionRule(preferences, adding, text))) return;
-    setText("");
-    setAdding(null);
-    toast.success("Rule added");
-  };
-  const section = (kind: PermissionRuleKind, title: string, description: string) => <section className="ceyo-permission-section">
-    <div className="ceyo-permission-head"><div><h2>{title}</h2><p>{description}</p></div><button type="button" onClick={() => { setAdding(kind); setText(""); }}>Add Rule</button></div>
-    {adding === kind && <form className="ceyo-rule-form" onSubmit={(event) => { event.preventDefault(); add(); }}><input className="ceyo-input" value={text} maxLength={300} onChange={(event) => setText(event.target.value)} placeholder="Describe the action" autoFocus /><div><button type="submit" className="hub-button hub-button-primary" disabled={!text.trim()}>Save rule</button><button type="button" className="hub-button hub-button-secondary" onClick={() => setAdding(null)}>Cancel</button></div></form>}
-    <div className="ceyo-rule-list">{preferences[kind].length ? preferences[kind].map((rule, index) => <div className="ceyo-rule" key={`${rule}-${index}`}><span>{rule}</span><button type="button" aria-label={`Delete rule ${rule}`} onClick={() => save(removePermissionRule(preferences, kind, index))}><Trash2 size={16} /></button></div>) : <p>No rules yet</p>}</div>
-  </section>;
+  const notifOn = notifState === "granted" || !!nativeSt?.notifications;
+  const activeCount = [notifOn, contactsGranted, locGranted, micGranted, !!nativeSt?.listener, !!nativeSt?.overlay, !!nativeSt?.battery, !!nativeSt?.assistant].filter(Boolean).length;
+
+  const item = (
+    icon: ReactNode,
+    title: string,
+    sub: string,
+    on: boolean,
+    badge: string,
+    onClick: () => void,
+  ) => (
+    <button type="button" className="aip-row" data-on={on} onClick={onClick}>
+      <span className="aip-icon">{icon}</span>
+      <span className="aip-meta">
+        <strong>{title}</strong>
+        <span>{sub}</span>
+      </span>
+      <span className="aip-pill">{badge}</span>
+    </button>
+  );
+
   return (
-    <Shell title={ar ? "صلاحيات الذكاء الاصطناعي" : "AI Permissions"} back={() => nav("/settings")}>
+    <div className="aip-page" dir={ar ? "rtl" : "ltr"}>
       {promptKind && (
         <PermissionPromptSheet
           kind={promptKind}
@@ -931,68 +934,37 @@ function Permissions({ nav }: { nav: Nav }) {
           }}
         />
       )}
-      <Group title={ar ? "صلاحيات الهاتف الأساسية" : "Core device access"}>
-        <Row
-          label={ar ? "الإشعارات" : "Notifications"}
-          sub={ar ? "التذكيرات، الردود، والمهام المكتملة" : "Reminders, replies, completed tasks"}
-          value={notifState === "granted" || nativeSt?.notifications ? (ar ? "مفعّلة" : "On") : notifState === "denied" ? (ar ? "مقفولة" : "Blocked") : (ar ? "إيقاف" : "Off")}
-          onClick={() => setPromptKind("notifications")}
-        />
-        <Row
-          label={ar ? "جهات الاتصال" : "Contacts"}
-          sub={ar ? "إرسال رسائل والاتصال بجهات اتصالك (أندرويد)" : "Message and call your contacts (Android)"}
-          value={contactsGranted ? (ar ? "مفعّلة" : "On") : (ar ? "اختياري" : "Optional")}
-          onClick={() => setPromptKind("contacts")}
-        />
-        <Row
-          label={ar ? "الموقع الجغرافي" : "Location"}
-          sub={ar ? "تذكيرات حسب المكان والطقس والأماكن القريبة" : "Location reminders, weather & nearby places"}
-          value={locGranted ? (ar ? "مفعّلة" : "On") : (ar ? "اختياري" : "Optional")}
-          onClick={() => setPromptKind("location")}
-        />
-        <Row
-          label={ar ? "الميكروفون والمكالمات" : "Microphone & Calls"}
-          sub={ar ? "المكالمات الصوتية والرسائل الصوتية" : "Voice calls and voice messages"}
-          value={micGranted ? (ar ? "مفعّلة" : "On") : (ar ? "إيقاف" : "Off")}
-          onClick={() => void requestMicCam()}
-        />
-      </Group>
-      <Group title={ar ? "وصول عميق على أندرويد" : "Android deep access"}>
-        <Row
-          label={ar ? "قراءة الإشعارات" : "Notification Reader"}
-          sub={ar ? "متابعة الفواتير والروابط والرسائل على الجهاز" : "Read bills, alerts & links on-device"}
-          value={nativeSt?.listener ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
-          onClick={() => openAndroidSetting("listener")}
-        />
-        <Row
-          label={ar ? "المنبهات والتذكيرات الدقيقة" : "Exact Alarms & Reminders"}
-          sub={ar ? "ضبط منبهات ومواعيد حقيقية على الهاتف" : "Schedule real alarms on your phone"}
-          value={native ? (ar ? "فتح" : "Open") : (ar ? "أندرويد" : "Android")}
-          onClick={() => openAndroidSetting("alarms")}
-        />
-        <Row
-          label={ar ? "الظهور فوق التطبيقات" : "Draw over other apps"}
-          sub={ar ? "الوصول للبوت من أي تطبيق فورًا" : "Summon your bot over any app"}
-          value={nativeSt?.overlay ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
-          onClick={() => openAndroidSetting("overlay")}
-        />
-        <Row
-          label={ar ? "العمل في الخلفية بدون قيود" : "Unrestricted background"}
-          sub={ar ? "إبقاء البوت شغال للمهام الطويلة والروتين" : "Keep routines & long tasks running"}
-          value={nativeSt?.battery ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
-          onClick={() => openAndroidSetting("battery")}
-        />
-        <Row
-          label={ar ? "المساعد الافتراضي للهاتف" : "Default Phone Assistant"}
-          sub={ar ? "تعيين Ceyo كمساعد أندرويد الأساسي" : "Set Ceyo as your Android assistant"}
-          value={nativeSt?.assistant ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
-          onClick={() => openAndroidSetting("assistant")}
-        />
-      </Group>
-      {section("ask", "Always Ask", "Saved preferences for actions you want reviewed")}
-      {section("allow", "Allow without Asking", "Saved preferences; these do not authorize actions")}
-      <p className="ceyo-note ceyo-permission-note">{ar ? "أنت تتحكم بالكامل في كل صلاحية ويمكنك تشغيلها أو إيقافها في أي وقت." : "You are always in full control and can enable or revoke any permission at any time."}</p>
-    </Shell>
+      <div className="aip-top">
+        <button type="button" className="aip-back" aria-label={ar ? "رجوع" : "Back"} onClick={() => nav("/settings")}>
+          <PhCaretLeft size={20} weight="bold" />
+        </button>
+        <span className="aip-count">{ar ? `${activeCount} / 8 مفعّلة` : `${activeCount} / 8 active`}</span>
+      </div>
+
+      <div className="aip-head">
+        <h1>{ar ? "صلاحيات الذكاء الاصطناعي" : "AI Permissions"}</h1>
+        <p>{ar ? "اختار الصلاحيات اللي تحب تديها للبوت على موبايلك." : "Choose what your bot can access on your phone."}</p>
+      </div>
+
+      <div className="aip-sec-title">{ar ? "الأساسية" : "Core"}</div>
+      <div className="aip-card">
+        {item(<PhBellRinging size={23} weight="duotone" />, ar ? "الإشعارات" : "Notifications", ar ? "التذكيرات، الردود، والمهام المكتملة" : "Reminders, replies, completed tasks", notifOn, notifOn ? (ar ? "مفعّلة" : "On") : notifState === "denied" ? (ar ? "مقفولة" : "Blocked") : (ar ? "تفعيل" : "Enable"), () => setPromptKind("notifications"))}
+        {item(<PhAddressBook size={23} weight="duotone" />, ar ? "جهات الاتصال" : "Contacts", ar ? "إرسال رسائل والاتصال بجهات اتصالك" : "Message and call your contacts", contactsGranted, contactsGranted ? (ar ? "مفعّلة" : "On") : (ar ? "تفعيل" : "Enable"), () => setPromptKind("contacts"))}
+        {item(<PhMapPin size={23} weight="duotone" />, ar ? "الموقع الجغرافي" : "Location", ar ? "تذكيرات حسب المكان والطقس والأماكن القريبة" : "Location reminders, weather & nearby places", locGranted, locGranted ? (ar ? "مفعّلة" : "On") : (ar ? "تفعيل" : "Enable"), () => setPromptKind("location"))}
+        {item(<PhMicrophone size={23} weight="duotone" />, ar ? "الميكروفون والمكالمات" : "Microphone & Calls", ar ? "المكالمات الصوتية والرسائل الصوتية" : "Voice calls and voice messages", micGranted, micGranted ? (ar ? "مفعّلة" : "On") : (ar ? "تفعيل" : "Enable"), () => void requestMicCam())}
+      </div>
+
+      <div className="aip-sec-title">{ar ? "وصول أندرويد الكامل" : "Android deep access"}</div>
+      <div className="aip-card">
+        {item(<PhBellSimpleZ size={23} weight="duotone" />, ar ? "قراءة الإشعارات" : "Notification Reader", ar ? "متابعة الفواتير والروابط والرسائل على الجهاز" : "Read bills, alerts & links on-device", !!nativeSt?.listener, nativeSt?.listener ? (ar ? "مفعّلة" : "On") : native ? (ar ? "تفعيل" : "Enable") : (ar ? "أندرويد" : "Android"), () => openAndroidSetting("listener"))}
+        {item(<PhAlarm size={23} weight="duotone" />, ar ? "المنبهات الدقيقة" : "Exact Alarms", ar ? "ضبط منبهات ومواعيد حقيقية على الهاتف" : "Schedule real alarms on your phone", false, native ? (ar ? "فتح" : "Open") : (ar ? "أندرويد" : "Android"), () => openAndroidSetting("alarms"))}
+        {item(<PhStack size={23} weight="duotone" />, ar ? "الظهور فوق التطبيقات" : "Draw over apps", ar ? "الوصول للبوت من أي تطبيق فورًا" : "Summon your bot over any app", !!nativeSt?.overlay, nativeSt?.overlay ? (ar ? "مفعّلة" : "On") : native ? (ar ? "تفعيل" : "Enable") : (ar ? "أندرويد" : "Android"), () => openAndroidSetting("overlay"))}
+        {item(<PhBatteryCharging size={23} weight="duotone" />, ar ? "العمل بدون قيود بطارية" : "Unrestricted background", ar ? "إبقاء البوت شغال للمهام الطويلة والروتين" : "Keep routines & long tasks running", !!nativeSt?.battery, nativeSt?.battery ? (ar ? "مفعّلة" : "On") : native ? (ar ? "تفعيل" : "Enable") : (ar ? "أندرويد" : "Android"), () => openAndroidSetting("battery"))}
+        {item(<PhRobot size={23} weight="duotone" />, ar ? "المساعد الافتراضي" : "Default Assistant", ar ? "تعيين Ceyo كمساعد أندرويد الأساسي" : "Set Ceyo as your Android assistant", !!nativeSt?.assistant, nativeSt?.assistant ? (ar ? "مفعّلة" : "On") : native ? (ar ? "تفعيل" : "Enable") : (ar ? "أندرويد" : "Android"), () => openAndroidSetting("assistant"))}
+      </div>
+
+      <p className="aip-foot">{ar ? "كل صلاحية اختيارية تمامًا، وتقدر تشغلها أو توقفها في أي وقت." : "Every permission is optional — enable or revoke any of them anytime."}</p>
+    </div>
   );
 }
 

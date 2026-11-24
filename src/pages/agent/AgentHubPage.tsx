@@ -448,8 +448,8 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
               <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/apps"); }}><Grid2x2Plus size={20} />{ar ? "التكاملات" : "Integrations"}</button>
               {!demo && (
                 <>
-                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><Star size={20} />{ar ? "الباقات (PRO)" : "Plans (PRO)"}</button>
-                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); toast(ar ? "قريبًا" : "Coming soon"); }}><Gift size={20} />{ar ? "اكسب Pro" : "Win Pro"}</button>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><Star size={19} />{ar ? "Ceyo Pro" : "Ceyo Pro"}</button>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); toast(ar ? "قريبًا" : "Coming soon"); }}><Gift size={19} />{ar ? "اكسب Pro" : "Win Pro"}</button>
                 </>
               )}
             </div>

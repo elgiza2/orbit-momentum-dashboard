@@ -4,24 +4,29 @@
   z-index: 120;
   background: #000;
   color: #fff;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: max(20px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
-  animation: permFadeIn 220ms ease-out;
+  padding: max(18px, env(safe-area-inset-top)) 22px max(26px, env(safe-area-inset-bottom));
+  animation: permFadeIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes permFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes permBannerDrop {
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .perm-phone-stage {
   position: relative;
-  width: 100%;
-  max-width: 340px;
-  padding-top: 8px;
+  width: min(360px, 100%);
+  padding-top: 6px;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -30,28 +35,29 @@
 .perm-phone-frame {
   position: relative;
   width: 100%;
-  background: linear-gradient(180deg, #161619 0%, #0d0d10 68%, #000 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #141417 0%, #0b0b0d 62%, #000 100%);
+  border: 6px solid #18181b;
   border-bottom: none;
-  border-radius: 44px 44px 0 0;
-  padding: 18px 16px 36px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-radius: 50px 50px 0 0;
+  padding: 16px 16px 42px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .perm-phone-frame::after {
   content: "";
   position: absolute;
-  inset: 42% 0 0 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 88%);
+  inset: 38% -8px 0 -8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 68%, #000 100%);
   pointer-events: none;
+  z-index: 3;
 }
 
 .perm-phone-notch {
-  width: 86px;
-  height: 22px;
+  width: 92px;
+  height: 24px;
   margin: 0 auto 18px;
   border-radius: 999px;
-  background: #09090b;
+  background: #070709;
 }
 
 .perm-banner {
@@ -59,23 +65,23 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 14px;
-  border-radius: 20px;
-  background: rgba(34, 34, 38, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  gap: 13px;
+  padding: 14px 15px;
+  border-radius: 22px;
+  background: rgba(30, 30, 34, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+  animation: permBannerDrop 380ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both;
 }
 
 .perm-banner-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  flex: 0 0 40px;
+  flex: 0 0 42px;
   color: #09090b;
-  font-weight: 800;
 }
 
 .perm-banner-icon[data-kind="notifications"] { background: #c7f000; }
@@ -86,36 +92,36 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   text-align: start;
 }
 
 .perm-banner-text strong {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   color: #fff;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .perm-banner-text span {
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.76);
   line-height: 1.3;
 }
 
 .perm-app-grid {
-  margin-top: 18px;
+  margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  padding: 0 6px;
+  gap: 15px;
+  padding: 0 8px;
 }
 
 .perm-app-tile {
   aspect-ratio: 1;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.045);
 }
 
 .perm-copy {
@@ -123,25 +129,37 @@
   max-width: 340px;
   text-align: center;
   margin: auto 0;
-  padding: 8px 4px;
+  padding: 4px 6px;
 }
 
 .perm-copy h1 {
-  font-family: Georgia, "Times New Roman", "Readex Pro", serif;
-  font-size: clamp(27px, 7.2vw, 34px);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 7.4vw, 35px);
   font-weight: 500;
-  line-height: 1.18;
-  letter-spacing: -0.01em;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
   color: #fff;
-  margin: 0 0 14px;
+  margin: 0 0 12px;
+}
+
+.perm-overlay[dir="rtl"] .perm-copy h1 {
+  font-family: "Readex Pro", system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.28;
+  letter-spacing: 0;
 }
 
 .perm-copy p {
-  font-family: Georgia, "Times New Roman", "Readex Pro", serif;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 15.5px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.56);
+  line-height: 1.48;
+  color: rgba(255, 255, 255, 0.52);
   margin: 0;
+}
+
+.perm-overlay[dir="rtl"] .perm-copy p {
+  font-family: "Readex Pro", system-ui, sans-serif;
+  font-size: 14.5px;
 }
 
 .perm-actions {
@@ -150,15 +168,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .perm-primary {
   width: 100%;
-  height: 52px;
+  height: 54px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: #1b1b1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #18181b;
   color: #fff;
   font-size: 15.5px;
   font-weight: 600;

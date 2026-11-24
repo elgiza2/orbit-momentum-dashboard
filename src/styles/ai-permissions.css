@@ -1,0 +1,150 @@
+.aip-page {
+  min-height: 100dvh;
+  background: #000;
+  color: #fff;
+  padding: max(16px, env(safe-area-inset-top)) 18px max(36px, env(safe-area-inset-bottom));
+}
+
+.aip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.aip-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #141416;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.aip-page[dir="rtl"] .aip-back svg {
+  transform: scaleX(-1);
+}
+
+.aip-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #c7f000;
+  background: rgba(199, 240, 0, 0.1);
+  border: 1px solid rgba(199, 240, 0, 0.22);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.aip-head {
+  margin-bottom: 22px;
+}
+
+.aip-head h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 6px;
+}
+
+.aip-head p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.56);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.aip-sec-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 22px 6px 10px;
+}
+
+.aip-card {
+  background: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.aip-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 16px;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  text-align: start;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.aip-row + .aip-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.aip-row:active {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aip-icon {
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.82);
+  display: grid;
+  place-items: center;
+}
+
+.aip-row[data-on="true"] .aip-icon {
+  color: #c7f000;
+}
+
+.aip-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aip-meta strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.aip-meta span {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.35;
+}
+
+.aip-pill {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.aip-row[data-on="true"] .aip-pill {
+  background: rgba(199, 240, 0, 0.14);
+  color: #c7f000;
+}
+
+.aip-foot {
+  margin: 18px 6px 0;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.42);
+  line-height: 1.5;
+}
