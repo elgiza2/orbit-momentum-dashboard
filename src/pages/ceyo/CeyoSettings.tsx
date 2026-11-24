@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
 import {
   ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Contrast, Copy, CreditCard,
-  KeyRound, Moon, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
+  KeyRound, Moon, Bot, Brain, Zap, Image as ImageIcon, Workflow, Code2, Film, Rocket, Ticket, Gauge, Sparkles, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useUsage } from "@/hooks/useUsage";
@@ -26,6 +26,7 @@ const CheckoutSheet = lazy(() => import("@/components/billing/CheckoutSheet").th
 import { useUserLang, setUserLang, detectLang } from "@/lib/authI18n";
 import { normalizeAppLanguage } from "@/lib/i18n/bundledLocales";
 import "@/styles/subscriptions.css";
+import "@/styles/plans-paywall.css";
 import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
 import { useLocalPlanPrices } from "@/hooks/useLocalPlanPrices";
@@ -403,6 +404,18 @@ const PLANS = [
   ] },
 ] as const;
 
+const PLAN_TAGLINES: Record<(typeof PLANS)[number]["id"], { en: string; ar: string }> = {
+  plus: { en: "Your own team of bots, each with its own computer.", ar: "فريق بوتات خاص بيك، كل بوت بكمبيوتر خاص بيه." },
+  pro: { en: "Hand over whole projects, with more power and higher limits.", ar: "سلّم مشاريع كاملة، بقوة أكبر وحدود أعلى." },
+  ultra: { en: "Delegate everything, with the most capable models and 50x usage.", ar: "سيب كل حاجة عليهم، بأقوى النماذج واستخدام أكتر 50 مرة." },
+};
+const BENEFIT_ICONS: Record<string, ReactNode> = {
+  "Ceyo Bot": <Bot />, "Newest Ceyo models": <Brain />, "Faster chat replies": <Zap />,
+  "Create images and videos with AI": <ImageIcon />, "Cloud agents and automation": <Workflow />, "Code hosting and AI code reviews": <Code2 />,
+  "Create 1080p videos": <Film />, "Priority model access at peak times": <Rocket />, "Faster replies and generations": <Zap />,
+  "Most capable chat models": <Brain />, "Early access to new products and models": <Ticket />, "Fastest replies and generations": <Zap />,
+};
+
 type CardBilling = { tier: string; interval: string; status: string; nextChargeAt: string | null; cardLast4: string | null } | null;
 /** Web trial's automatic charge: when it happens, which card, and a cancel button. */
 function useCardBilling() {
@@ -452,38 +465,76 @@ function Plans({ nav }: { nav: Nav }) {
     "Priority model access at peak times": "أولوية الوصول إلى النماذج في أوقات الذروة", "Faster replies and generations": "استجابات وتوليدات أسرع",
     "Most capable chat models": "أقوى نماذج الدردشة", "Early access to new products and models": "الوصول المبكر إلى المنتجات والنماذج", "Fastest replies and generations": "أسرع الردود والتوليدات",
   };
+  const fmt = (v: number | null) => (v !== null && localPrices.currency ? formatLocalPrice(v, localPrices.currency, ar ? "ar" : "en") : "…");
+  const shownPrice = fmt(yearly ? localPrices.yearly : localPrices.monthly);
+  const per = yearly ? (ar ? "/سنة" : "/yr") : (ar ? "/شهر" : "/mo");
+  const tagline = PLAN_TAGLINES[p.id][ar ? "ar" : "en"];
+  const features: { icon: ReactNode; text: string }[] = [
+    ...(p.base ? [{ icon: <Check />, text: ar ? `كل اللي في ${p.base}` : `Everything in ${p.base}` }] : []),
+    { icon: <Gauge />, text: ar ? `استخدام أكتر ${p.mult}` : `${p.mult} more usage` },
+    ...p.groups.flatMap((g) => g.items).map((it) => ({ icon: BENEFIT_ICONS[it] ?? <Sparkles />, text: ar ? benefitsAr[it] || it : it })),
+  ];
+  useEffect(() => {
+    // The paywall's display face loads only when this page opens.
+    if (document.getElementById("ceyo-paywall-font")) return;
+    const l = document.createElement("link");
+    l.id = "ceyo-paywall-font"; l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Readex+Pro:wght@400;500;600&display=swap";
+    document.head.appendChild(l);
+  }, []);
   return (
-    <div className="agent-hub ceyo-page subscription-page" dir={ar ? "rtl" : "ltr"}>
-      <header className="subscription-header"><span className="subscription-brand">Ceyo</span><Button variant="ghost" size="icon" aria-label={ar ? "إغلاق" : "Close"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><X/></Button></header>
-      <h1 className="subscription-title">{ar ? <>اشتراك واحد.<br/>الوصول إلى كل شيء.</> : <>One subscription.<br/>Access to everything.</>}</h1>
-      <main className="subscription-content">
-        <div className="subscription-tabs" role="tablist" aria-label="Plans">
-          {PLANS.map((x,i) => <Button variant="ghost" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => chooseTab(i)}>{x.name}</Button>)}
+    <div className="agent-hub ceyo-page subscription-page ceyo-paywall" data-tier={p.id} dir={ar ? "rtl" : "ltr"}>
+      <div className="paywall-scroll">
+        <header className="paywall-top">
+          <button type="button" className="paywall-close" aria-label={ar ? "إغلاق" : "Close"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><X /></button>
+        </header>
+        <h1 className="paywall-mark" aria-label={`Ceyo ${p.name}`} dir="ltr">
+          <span className="paywall-row paywall-row-brand" aria-hidden>{"CEYO".split("").map((c, i) => <i key={i}>{c}</i>)}</span>
+          <span className="paywall-row paywall-row-tier" aria-hidden key={p.id}>{p.name.toUpperCase().split("").map((c, i) => <i key={i} style={{ animationDelay: `${i * 40}ms` }}>{c}</i>)}</span>
+        </h1>
+        <p className="paywall-tagline">{tagline}</p>
+        <div className="paywall-tabs" role="tablist" aria-label="Plans">
+          {PLANS.map((x, i) => <button type="button" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => chooseTab(i)}>{x.name}</button>)}
         </div>
-        <section id="subscription-details" role="tabpanel" aria-label={p.name}>
-          {p.base && <p className="subscription-base">{ar ? `كل شيء في ${p.base}، و:` : `Everything in ${p.base}, and:`}</p>}
-          <div className="subscription-usage"><b>{p.mult}</b><span>{ar ? "استخدام أكثر مقارنة بالخطة المجانية" : "more usage compared to Free"}</span></div>
-          <h2 className="subscription-section-label">{ar ? "فوائد الذكاء الاصطناعي" : "AI benefits"}</h2>
-          <ul className="subscription-benefits">{p.groups.flatMap(g => g.items).map(it => <li key={it}><Check/>{ar ? benefitsAr[it] || it : it}</li>)}</ul>
+        <section id="subscription-details" className="paywall-card" role="tabpanel" aria-label={p.name}>
+          <div className="paywall-card-head">
+            <p className="paywall-price" dir="auto"><strong>{shownPrice}</strong><span>{per}</span></p>
+            <span className="paywall-card-name">{p.name}</span>
+          </div>
+          {p.yearly > 0 && (
+            <div className="paywall-interval" role="group" aria-label="Billing interval">
+              <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>{ar ? "شهري" : "Monthly"}</button>
+              <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>{ar ? "سنوي · وفر 17%" : "Yearly · Save 17%"}</button>
+            </div>
+          )}
+          <ul className="paywall-features">{features.map((f) => <li key={f.text}><span className="paywall-ico">{f.icon}</span><span>{f.text}</span></li>)}</ul>
+          {canTrial && !current ? (
+            <button type="button" className="paywall-cta" disabled={!localPrices.ready} onClick={() => (web ? setTrialPaying(true) : setPaying(true))}>
+              <span>{ar ? "ابدأ ٣ أيام مجانًا" : "Start 3 days free"}</span>
+            </button>
+          ) : (
+            <button type="button" className="paywall-cta" disabled={current || !localPrices.ready} onClick={() => setPaying(true)}>
+              <span>{current ? (ar ? "باقتك الحالية" : "Current plan") : ar ? `اشترك في ${p.name}` : `Upgrade to ${p.name}`}</span>
+            </button>
+          )}
         </section>
-      </main>
-      <footer className="subscription-footer">
-        {autoCharge && <p className="subscription-legal" role="status">{ar ? `خصم تلقائي ${autoCharge.nextChargeAt ? `يوم ${new Date(autoCharge.nextChargeAt).toLocaleDateString("ar")}` : ""}${autoCharge.cardLast4 ? ` من البطاقة المنتهية بـ ${autoCharge.cardLast4}` : ""}. ` : `Automatic charge${autoCharge.nextChargeAt ? ` on ${new Date(autoCharge.nextChargeAt).toLocaleDateString()}` : ""}${autoCharge.cardLast4 ? ` to the card ending ${autoCharge.cardLast4}` : ""}. `}<Button variant="link" className="h-auto p-0" onClick={() => void cancelAutoCharge()}>{ar ? "إلغاء الخصم التلقائي" : "Cancel automatic charge"}</Button></p>}
-        <div className="subscription-intervals" role="group" aria-label="Billing interval">
-          <Button variant="ghost" aria-pressed={!yearly} onClick={() => setYearly(false)}><strong dir="auto">{localPrices.monthly !== null && localPrices.currency ? formatLocalPrice(localPrices.monthly, localPrices.currency, ar ? "ar" : "en") : "…"}</strong><span>{ar ? "الفوترة شهريًا" : "Billed monthly"}</span></Button>
-          {p.yearly > 0 && <Button variant="ghost" aria-pressed={yearly} onClick={() => setYearly(true)}><strong dir="auto">{localPrices.yearly !== null && localPrices.currency ? formatLocalPrice(localPrices.yearly, localPrices.currency, ar ? "ar" : "en") : "…"}</strong><span>{ar ? "سنويًا · وفر 17%" : "Yearly · Save 17%"}</span></Button>}
-        </div>
-        {localPrices.error && <Button variant="ghost" onClick={localPrices.retry}>{ar ? "تعذر تحميل السعر · إعادة المحاولة" : "Price unavailable · Retry"}</Button>}
-        {localPrices.approximate && localPrices.ready && <p className="subscription-legal">{ar ? "سعر محلي تقريبي؛ المبلغ النهائي يُعرض عند الدفع." : "Approximate local price; final amount shown at checkout."}</p>}
-        {canTrial && !current ? <>
-          <Button variant="ghost" className="subscription-submit subscription-trial-cta" disabled={!localPrices.ready} onClick={() => (web ? setTrialPaying(true) : setPaying(true))}>
-            <span className="subscription-trial-cta-main">{ar ? "ابدأ ٣ أيام مجانًا" : "Start 3 days free"}</span>
-            <span className="subscription-trial-cta-sub" dir="auto">{(() => { const v = yearly ? localPrices.yearly : localPrices.monthly; const price = v !== null && localPrices.currency ? formatLocalPrice(v, localPrices.currency, ar ? "ar" : "en") : ""; return ar ? `بعدها ${price}${yearly ? "/سنة" : "/شهر"} · إلغاء في أي وقت` : `then ${price}${yearly ? "/yr" : "/mo"} · cancel anytime`; })()}</span>
-          </Button>
-          {web && <Button variant="ghost" className="subscription-secondary" disabled={!localPrices.ready} onClick={() => setPaying(true)}>{ar ? "اشترك دلوقتي من غير تجربة" : "Subscribe now without trial"}</Button>}
-        </> : <Button variant="ghost" className="subscription-submit" disabled={current || !localPrices.ready} onClick={() => setPaying(true)}>{current ? ar ? "الخطة الحالية" : "Current plan" : ar ? "اشترك" : "Subscribe"}</Button>}
-        <p className="subscription-legal">{ar ? "تُجدد الاشتراكات تلقائيًا حتى الإلغاء. يمكنك الإلغاء في أي وقت. " : "Subscriptions renew automatically until cancelled. Cancel anytime. "}<a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a></p>
-      </footer>
+        <footer className="paywall-foot">
+          {localPrices.error && <button type="button" className="paywall-link" onClick={localPrices.retry}>{ar ? "تعذر تحميل السعر · إعادة المحاولة" : "Price unavailable · Retry"}</button>}
+          <p className="paywall-fine" dir="auto">
+            {canTrial && !current
+              ? (ar ? `مجانًا ٣ أيام، بعدها ${shownPrice}${per}. الغِ في أي وقت.` : `Free for 3 days, then ${shownPrice}${per}. Cancel anytime.`)
+              : (ar ? `${shownPrice}${per}. الغِ في أي وقت.` : `${shownPrice}${per}. Cancel anytime.`)}
+          </p>
+          {canTrial && !current && web && <button type="button" className="paywall-link" disabled={!localPrices.ready} onClick={() => setPaying(true)}>{ar ? "اشترك دلوقتي من غير تجربة" : "Subscribe now without trial"}</button>}
+          {autoCharge && <p className="paywall-fine" role="status">{ar ? `خصم تلقائي ${autoCharge.nextChargeAt ? `يوم ${new Date(autoCharge.nextChargeAt).toLocaleDateString("ar")}` : ""}${autoCharge.cardLast4 ? ` من البطاقة المنتهية بـ ${autoCharge.cardLast4}` : ""}. ` : `Automatic charge${autoCharge.nextChargeAt ? ` on ${new Date(autoCharge.nextChargeAt).toLocaleDateString()}` : ""}${autoCharge.cardLast4 ? ` to the card ending ${autoCharge.cardLast4}` : ""}. `}<button type="button" className="paywall-link paywall-inline" onClick={() => void cancelAutoCharge()}>{ar ? "إلغاء الخصم التلقائي" : "Cancel automatic charge"}</button></p>}
+          {localPrices.approximate && localPrices.ready && <p className="paywall-fine">{ar ? "سعر محلي تقريبي؛ المبلغ النهائي يظهر وقت الدفع." : "Approximate local price; final amount shown at checkout."}</p>}
+          <nav className="paywall-legal" aria-label={ar ? "روابط قانونية" : "Legal"}>
+            <a href="/privacy">{ar ? "الخصوصية" : "Privacy"}</a><span aria-hidden>·</span>
+            <a href="/terms">{ar ? "الشروط" : "Terms"}</a><span aria-hidden>·</span>
+            <a href="/subscription-terms">{ar ? "شروط الاشتراك" : "Subscription terms"}</a>
+          </nav>
+        </footer>
+      </div>
       {paying && <Suspense fallback={null}><CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} /></Suspense>}
       {trialPaying && <Suspense fallback={null}><CheckoutSheet trial tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => { setTrialPaying(false); void usage.refetch(); void cardBilling.refetch(); }} /></Suspense>}
     </div>

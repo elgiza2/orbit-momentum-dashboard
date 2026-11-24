@@ -1,3 +1,6 @@
+## Plans page redesign — 2026-11-24
+- [x] Clean paywall like the owner's reference: block wordmark, one bright colour per plan, real Ceyo features, focus on fonts and colours.
+
 ## People chat additions — 2026-11-22
 - [x] Group information: photo, name, description and members.
 - [x] Owner-controlled invitation link and QR with explicit join confirmation.
