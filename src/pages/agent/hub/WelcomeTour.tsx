@@ -23,13 +23,6 @@ const GROUP_MSGS: { color: AgentColor; state: OrbState; accent: string; en: stri
   { color: "aurora", state: "hello", accent: "#c4a8ff", en: "Markets", ar: "الأسواق", msg: { en: "Watching liquidity 24/7. Ready when you are.", ar: "براقب السيولة 24/7 وجاهز لأمرك." } },
 ];
 
-const PRO = [
-  { en: "Its own cloud computer & browser", ar: "كمبيوتر ومتصفح خاص على السحابة" },
-  { en: "A team of bots working together", ar: "فريق بوتات بيشتغلوا مع بعض" },
-  { en: "Connected to Gmail, Slack, Notion & more", ar: "متربط بـ Gmail وSlack وNotion وغيرهم" },
-  { en: "Works 24/7 while you sleep", ar: "شغّال 24/7 وانت نايم" },
-];
-
 export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
@@ -114,32 +107,24 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         )}
 
         {step === 2 && (
-          <>
-            <div className="wt-card">
-              <div className="wt-card-top">
-                <div className="wt-brand">CEYO <span>PRO</span></div>
-                <span className="wt-card-tag">{t("محدود", "LIMITED")}</span>
-              </div>
-              <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
-              <div className="wt-card-line" />
-              <ul className="wt-card-list">
-                {PRO.map(({ en, ar: a }, i) => (
-                  <li key={en} style={{ animationDelay: `${0.12 + i * 0.06}s` }}>
-                    <i aria-hidden="true">✓</i>
-                    <span>{ar ? a : en}</span>
-                  </li>
-                ))}
-              </ul>
-              <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
+          <div className="wt-pro-hero">
+            <div className="wt-pro-orb">
+              <AgentOrb color="mint" state="hello" size={140} />
             </div>
-          </>
+            <div className="wt-brand">CEYO <span>PRO</span></div>
+            <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
+            <p className="wt-pro-sub">{t("فريق ذكاء اصطناعي شغّال بدالك 24/7.", "Your own AI team working for you 24/7.")}</p>
+          </div>
         )}
       </div>
 
       {step < 2 ? (
         <button type="button" className="wt-next" onClick={() => go(step + 1)}>{t("كمّل", "Continue")}</button>
       ) : (
-        <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
+        <div className="wt-pro-actions">
+          <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
+          <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
+        </div>
       )}
     </div>
   );

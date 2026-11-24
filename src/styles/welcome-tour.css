@@ -58,17 +58,15 @@
 .wt-head-big h2,.wt-head-pro .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400}
 .wt-head-big h2{font-size:30px;line-height:1.15;margin:0;max-width:none}
 .wt-head-big p,.wt-head-pro p{margin:10px 0 0;font-size:15px;line-height:1.5;color:#fff9}
-/* slide 3: clean PRO card */
-.wt-card{margin:auto 0;background:linear-gradient(165deg,#17181b 0%,#0f1012 100%);border:1px solid #ffffff1a;border-radius:30px;padding:28px 24px 24px;box-shadow:0 24px 60px -20px #000,inset 0 1px 0 #ffffff1a;animation:wt-up .55s var(--ease) both}
-.wt-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.wt-card .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:34px;line-height:1}
-.wt-card .wt-brand span{color:var(--lime)}
-.wt-card-tag{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--lime);border:1px solid #dcfc7c44;padding:5px 10px;border-radius:999px}
-.wt-limited{margin-top:18px;font-size:20px;font-weight:700;line-height:1.35;color:#fff}
-.wt-card-line{height:1px;background:#ffffff14;margin:20px 0}
-.wt-card-list{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:14px}
-.wt-card-list li{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:500;color:#fffe;animation:wt-up .45s var(--ease) both}
-.wt-card-list i{font-style:normal;color:var(--lime);font-weight:800;font-size:16px;flex:none}
+/* slide 3: hero orb + PRO invite */
+.wt-pro-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:wt-up .55s var(--ease) both}
+.wt-pro-orb{position:relative;margin-bottom:34px;display:grid;place-items:center}
+.wt-pro-orb::before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#dcfc7c33 0%,#5ee0a014 45%,transparent 72%);pointer-events:none}
+.wt-pro-hero .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:44px;line-height:1}
+.wt-pro-hero .wt-brand span{color:var(--lime)}
+.wt-limited{margin-top:16px;font-size:22px;font-weight:700;line-height:1.35;color:#fff;max-width:320px}
+.wt-pro-sub{margin:10px 0 0;font-size:15px;line-height:1.5;color:#fff8;max-width:290px}
+.wt-pro-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:8px}
 .wt-pro-btn{width:100%;border:0;border-radius:999px;background:var(--lime);color:#0b0b0c;font-size:18px;font-weight:800;padding:17px;transition:transform .2s var(--ease)}
 .wt-pro-btn:active{transform:scale(.97)}
 /* buttons */
