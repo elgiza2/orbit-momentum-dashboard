@@ -11,14 +11,14 @@ const BUBBLES = {
 const COLORS = ["#a8648f", "#86ece8", "#f3e3cf", "#dcfc7c", "#fcd27e", "#fca27a", "#ee92d8"];
 const APPS = ["Gmail", "Calendar", "Drive", "Slack", "Notion", "GitHub", "WhatsApp", "Telegram", "Sheets"];
 
-export function WelcomeTour({ ar }: { ar: boolean }) {
+export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   useEffect(() => {
-    try { if (!localStorage.getItem(KEY)) { loadPaywallFont(); setOpen(true); } } catch { /* storage blocked */ }
-  }, []);
+    try { if (force || !localStorage.getItem(KEY)) { loadPaywallFont(); setOpen(true); } } catch { /* storage blocked */ }
+  }, [force]);
   if (!open) return null;
-  const done = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } setOpen(false); };
+  const done = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } setOpen(false); onDone?.(); };
   const next = () => (step < 2 ? setStep(step + 1) : done());
   const t = (a: string, e: string) => (ar ? a : e);
 

@@ -21,6 +21,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SubscriptionTermsRouteImport } from './routes/subscription-terms'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ApiAnythingRouteImport } from './routes/api/anything'
 import { Route as ApiBillingRouteImport } from './routes/api/billing'
 import { Route as ApiCallFollowupRouteImport } from './routes/api/call-followup'
@@ -157,6 +158,11 @@ const SubscriptionTermsRoute = SubscriptionTermsRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnythingRoute = ApiAnythingRouteImport.update({
@@ -564,6 +570,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
@@ -655,6 +662,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
@@ -747,6 +755,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
+  '/welcome': typeof WelcomeRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/billing': typeof ApiBillingRoute
   '/api/call-followup': typeof ApiCallFollowupRoute
@@ -840,6 +849,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/subscription-terms'
     | '/terms'
+    | '/welcome'
     | '/api/anything'
     | '/api/billing'
     | '/api/call-followup'
@@ -931,6 +941,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/subscription-terms'
     | '/terms'
+    | '/welcome'
     | '/api/anything'
     | '/api/billing'
     | '/api/call-followup'
@@ -1022,6 +1033,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/subscription-terms'
     | '/terms'
+    | '/welcome'
     | '/api/anything'
     | '/api/billing'
     | '/api/call-followup'
@@ -1114,6 +1126,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SubscriptionTermsRoute: typeof SubscriptionTermsRoute
   TermsRoute: typeof TermsRoute
+  WelcomeRoute: typeof WelcomeRoute
   ApiAnythingRoute: typeof ApiAnythingRoute
   ApiBillingRoute: typeof ApiBillingRoute
   ApiCallFollowupRoute: typeof ApiCallFollowupRoute
@@ -1277,6 +1290,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/anything': {
@@ -1834,6 +1854,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SubscriptionTermsRoute: SubscriptionTermsRoute,
   TermsRoute: TermsRoute,
+  WelcomeRoute: WelcomeRoute,
   ApiAnythingRoute: ApiAnythingRoute,
   ApiBillingRoute: ApiBillingRoute,
   ApiCallFollowupRoute: ApiCallFollowupRoute,
