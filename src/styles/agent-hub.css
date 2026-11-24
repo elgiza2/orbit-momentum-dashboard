@@ -443,3 +443,17 @@ html[data-theme="light"] .agent-hub {
   --hub-shadow: 0 18px 50px oklch(0 0 0 / 10%);
   color-scheme: light;
 }
+
+/* Three-dots menu: compact floating list with colored squircle glyphs. */
+.hub-apps-menu{min-width:224px;padding:6px;border-radius:22px;background:#1c1c1e;border:0;box-shadow:0 0 0 .5px rgba(255,255,255,.08),0 18px 44px rgba(0,0,0,.7);animation:hubMenuIn 240ms cubic-bezier(.2,1.1,.35,1) both;font-family:"Readex Pro",Inter,system-ui,sans-serif}
+@keyframes hubMenuIn{from{opacity:0;transform:translateY(8px) scale(.94)}}
+.hub-apps-menu button{gap:12px;padding:9px 10px;border-radius:15px;font-size:15.5px;font-weight:500;color:#f5f5f7}
+.hub-apps-menu button:active{background:rgba(255,255,255,.08);transform:scale(.98)}
+.hub-apps-menu button+button{margin-top:0}
+.hub-apps-menu .hub-menu-glyph{flex:0 0 auto;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.hub-apps-menu button .hub-menu-glyph svg{color:inherit}
+.hub-menu-glyph[data-tone="blue"]{background:linear-gradient(160deg,#5eb2ff,#2f6bff)}
+.hub-menu-glyph[data-tone="lime"]{background:linear-gradient(160deg,#e2ff5c,#9fd400);color:#151515!important}
+.hub-menu-glyph[data-tone="pink"]{background:linear-gradient(160deg,#ff8ac2,#f43f8e)}
+.hub-apps-menu .hub-menu-label{flex:1}
+.hub-apps-menu .hub-menu-soon{font-size:11.5px;font-weight:500;color:rgba(235,235,245,.5);padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.07)}

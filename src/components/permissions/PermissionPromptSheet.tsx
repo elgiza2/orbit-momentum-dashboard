@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Bell, MapPin, Users } from "lucide-react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { BellRinging, MapPin, UsersThree } from "@phosphor-icons/react";
+import { loadPaywallFont } from "@/lib/paywallFont";
 import { toast } from "sonner";
 import { ensureNotificationPermission } from "@/lib/notifyJobComplete";
 import { isNativeApp } from "@/lib/native/bridge";
@@ -10,70 +11,83 @@ export type PermissionPromptKind = "notifications" | "contacts" | "location";
 
 const PROMPT_DONE_KEY = "ceyo.perm.prompt.v1";
 
-type Copy = {
-  bannerTitle: string;
-  bannerBody: string;
-  heading: string;
-  sub: string;
-  cta: string;
-  later: string;
-};
+type Note = { title: string; body: string; time: string };
+type Copy = { notes: Note[]; heading: string; sub: string; cta: string; later: string };
 
 function copyFor(kind: PermissionPromptKind, ar: boolean): Copy {
+  const later = ar ? "مش دلوقتي" : "Not now";
   if (kind === "contacts") {
     return ar
       ? {
-          bannerTitle: "جهات الاتصال",
-          bannerBody: "ابعت رسالة لأحمد أو اتصل بماما فورًا",
-          heading: "خلّي البوت يوصل لجهات اتصالك.",
-          sub: "عشان يقدر يبعت رسايل، يرن على الناس، ويرتب مواعيدك من غير ما تكتب أرقام.",
-          cta: "السماح لجهات الاتصال",
-          later: "اسألني لاحقًا",
+          notes: [
+            { title: "Ceyo", body: "اتصلت بماما وأكدت معاد العشا الساعة 8", time: "الآن" },
+            { title: "Ceyo", body: "بعت لأحمد ملف العرض على واتساب", time: "منذ دقيقتين" },
+            { title: "Ceyo", body: "ذكّرت سارة بعيد ميلاد كريم", time: "منذ ساعة" },
+          ],
+          heading: "يكلّم الناس نيابة عنك.",
+          sub: "يبعت رسايل، يتصل، وينسّق مواعيدك مع الناس من غير ما تكتب رقم.",
+          cta: "السماح بجهات الاتصال",
+          later,
         }
       : {
-          bannerTitle: "Contacts",
-          bannerBody: "Message Ahmed or call Mom right away",
-          heading: "Let your bot reach your contacts.",
-          sub: "Send messages, place calls, and schedule with people without typing numbers.",
+          notes: [
+            { title: "Ceyo", body: "Called Mom and confirmed dinner at 8", time: "now" },
+            { title: "Ceyo", body: "Sent Ahmed the pitch deck on WhatsApp", time: "2m ago" },
+            { title: "Ceyo", body: "Reminded Sara about Karim's birthday", time: "1h ago" },
+          ],
+          heading: "It talks to people for you.",
+          sub: "Messages, calls and scheduling with your contacts — no numbers to type.",
           cta: "Allow contacts",
-          later: "Ask me later",
+          later,
         };
   }
   if (kind === "location") {
     return ar
       ? {
-          bannerTitle: "موقعك الحالي",
-          bannerBody: "أقرب كافيه، حالة الجو، ومواعيد مشاويرك",
-          heading: "مساعدة أذكى حسب مكانك.",
-          sub: "تذكيرات حسب المكان، اقتراحات قريبة منك، وتنبيهات الزحمة والطقس.",
+          notes: [
+            { title: "Ceyo", body: "انت جنب الصيدلية — متنساش الدوا", time: "الآن" },
+            { title: "Ceyo", body: "هتمطر بعد ساعة، خد شمسية", time: "منذ 5 دقائق" },
+            { title: "Ceyo", body: "الطريق زحمة، اتحرك بدري 15 دقيقة", time: "منذ ساعة" },
+          ],
+          heading: "مساعدة على حسب مكانك.",
+          sub: "تذكيرات لما توصل مكان، أماكن قريبة منك، وتنبيهات الزحمة والجو.",
           cta: "السماح بالموقع",
-          later: "اسألني لاحقًا",
+          later,
         }
       : {
-          bannerTitle: "Your location",
-          bannerBody: "Nearby places, weather, and commute alerts",
-          heading: "Smarter help based on where you are.",
-          sub: "Location reminders, nearby places, traffic, and local weather updates.",
+          notes: [
+            { title: "Ceyo", body: "You're near the pharmacy — grab your meds", time: "now" },
+            { title: "Ceyo", body: "Rain in an hour, take an umbrella", time: "5m ago" },
+            { title: "Ceyo", body: "Traffic ahead, leave 15 minutes early", time: "1h ago" },
+          ],
+          heading: "Help that knows where you are.",
+          sub: "Arrival reminders, nearby places, traffic and weather alerts.",
           cta: "Allow location",
-          later: "Ask me later",
+          later,
         };
   }
   return ar
     ? {
-        bannerTitle: "لا تنسى",
-        bannerBody: "فاتورة الكهرباء مستحقة النهاردة",
-        heading: "خليك أول من يعرف لما يحصل حاجة مهمة.",
-        sub: "تنبيهات الأسعار، التذكيرات، الردود، والمهام اللي خلصت.",
+        notes: [
+          { title: "Ceyo", body: "فاتورة الكهرباء مستحقة النهاردة — أدفعها؟", time: "الآن" },
+          { title: "Ceyo", body: "سعر تذكرة دبي نزل 18%", time: "منذ 10 دقائق" },
+          { title: "Ceyo", body: "خلّصت تقرير المبيعات الأسبوعي", time: "منذ ساعة" },
+        ],
+        heading: "اعرف أول بأول لما يحصل حاجة مهمة.",
+        sub: "تذكيرات، نزول أسعار، ردود، ومهام خلصت وانت مش فاتح التطبيق.",
         cta: "تفعيل الإشعارات",
-        later: "اسألني لاحقًا",
+        later,
       }
     : {
-        bannerTitle: "Don't forget",
-        bannerBody: "Your electricity bill is due today",
-        heading: "Get notified when something important happens.",
-        sub: "Price drops, reminders, replies, completed tasks.",
+        notes: [
+          { title: "Ceyo", body: "Electricity bill is due today — pay it?", time: "now" },
+          { title: "Ceyo", body: "Flight to Dubai dropped 18%", time: "10m ago" },
+          { title: "Ceyo", body: "Finished your weekly sales report", time: "1h ago" },
+        ],
+        heading: "Know the moment something matters.",
+        sub: "Reminders, price drops, replies and finished tasks — even when the app is closed.",
         cta: "Turn on notifications",
-        later: "Ask me later",
+        later,
       };
 }
 
@@ -138,7 +152,8 @@ export function PermissionPromptSheet({
 }) {
   const [busy, setBusy] = useState(false);
   const copy = copyFor(kind, ar);
-  const Icon = kind === "contacts" ? Users : kind === "location" ? MapPin : Bell;
+  const Icon = kind === "contacts" ? UsersThree : kind === "location" ? MapPin : BellRinging;
+  useEffect(() => { loadPaywallFont(); }, []);
 
   const allow = async () => {
     setBusy(true);
@@ -151,24 +166,23 @@ export function PermissionPromptSheet({
   };
 
   return (
-    <div className="perm-overlay" role="dialog" aria-modal="true" dir={ar ? "rtl" : "ltr"}>
-      <div className="perm-phone-stage" aria-hidden="true">
-        <div className="perm-phone-frame">
-          <div className="perm-phone-notch" />
-          <div className="perm-banner">
-            <div className="perm-banner-icon" data-kind={kind}>
-              <Icon size={20} strokeWidth={2.2} />
+    <div className="perm-overlay" data-kind={kind} role="dialog" aria-modal="true" dir={ar ? "rtl" : "ltr"}>
+      <div className="perm-scene" aria-hidden="true">
+        <div className="perm-glow" />
+        <div className="perm-clock">
+          <span>{new Date().toLocaleDateString(ar ? "ar-EG" : "en-US", { weekday: "long", month: "long", day: "numeric" })}</span>
+          <strong>9:41</strong>
+        </div>
+        <div className="perm-stack">
+          {copy.notes.map((n, i) => (
+            <div className="perm-note" key={i} style={{ "--i": i } as CSSProperties}>
+              <span className="perm-note-icon"><Icon size={18} weight="fill" /></span>
+              <span className="perm-note-text">
+                <span className="perm-note-head"><strong>{n.title}</strong><em>{n.time}</em></span>
+                <span>{n.body}</span>
+              </span>
             </div>
-            <div className="perm-banner-text">
-              <strong>{copy.bannerTitle}</strong>
-              <span>{copy.bannerBody}</span>
-            </div>
-          </div>
-          <div className="perm-app-grid">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div className="perm-app-tile" key={i} />
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 

@@ -1,200 +1,185 @@
-.perm-overlay {
+/* Full-screen permission ask: lock-screen scene with stacked Ceyo notifications, sans headline, white CTA. */
+html body .perm-overlay {
+  --perm-tone: #ff5a5f;
+  --perm-tone-2: #ff2d55;
   position: fixed;
   inset: 0;
-  z-index: 120;
-  background: #000;
-  color: #fff;
+  z-index: 140;
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  padding: max(18px, env(safe-area-inset-top)) 22px max(26px, env(safe-area-inset-bottom));
-  animation: permFadeIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes permFadeIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes permBannerDrop {
-  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.perm-phone-stage {
-  position: relative;
-  width: min(360px, 100%);
-  padding-top: 6px;
-  display: flex;
-  justify-content: center;
+  padding: max(10px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));
+  background: #000 !important;
+  background-image: none !important;
+  color: #fff;
+  font-family: "Readex Pro", Inter, system-ui, sans-serif;
   overflow: hidden;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  animation: permIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+html body .perm-overlay[data-kind="contacts"] { --perm-tone: #34d17a; --perm-tone-2: #10a85a; }
+html body .perm-overlay[data-kind="location"] { --perm-tone: #4aa3ff; --perm-tone-2: #2563eb; }
 
-.perm-phone-frame {
+@keyframes permIn { from { opacity: 0; } to { opacity: 1; } }
+
+.perm-scene {
   position: relative;
   width: 100%;
-  background: linear-gradient(180deg, #141417 0%, #0b0b0d 62%, #000 100%);
-  border: 6px solid #18181b;
-  border-bottom: none;
-  border-radius: 50px 50px 0 0;
-  padding: 16px 16px 42px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-}
-
-.perm-phone-frame::after {
-  content: "";
-  position: absolute;
-  inset: 38% -8px 0 -8px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.85) 68%, #000 100%);
-  pointer-events: none;
-  z-index: 3;
-}
-
-.perm-phone-notch {
-  width: 92px;
-  height: 24px;
-  margin: 0 auto 18px;
-  border-radius: 999px;
-  background: #070709;
-}
-
-.perm-banner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 14px 15px;
-  border-radius: 22px;
-  background: rgba(30, 30, 34, 0.94);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
-  animation: permBannerDrop 380ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both;
-}
-
-.perm-banner-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 42px;
-  color: #09090b;
-}
-
-.perm-banner-icon[data-kind="notifications"] { background: #c7f000; }
-.perm-banner-icon[data-kind="contacts"] { background: #56c2ff; }
-.perm-banner-icon[data-kind="location"] { background: #ff7ab6; }
-
-.perm-banner-text {
-  min-width: 0;
+  max-width: 380px;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  text-align: start;
+  align-items: center;
+  padding-top: 4vh;
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 72%, transparent 100%);
 }
 
-.perm-banner-text strong {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.2;
-}
-
-.perm-banner-text span {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.76);
-  line-height: 1.3;
-}
-
-.perm-app-grid {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  padding: 0 8px;
-}
-
-.perm-app-tile {
+.perm-glow {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  width: 150%;
   aspect-ratio: 1;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.045);
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--perm-tone) 34%, transparent), transparent 72%);
+  filter: blur(10px);
+  opacity: 0.85;
+  animation: permGlow 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes permGlow { from { opacity: 0.55; transform: translateX(-50%) scale(0.95); } to { opacity: 0.9; transform: translateX(-50%) scale(1.05); } }
+
+.perm-clock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4.5vh;
+  animation: permRise 600ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+}
+.perm-clock span { font-size: 15px; font-weight: 500; color: rgba(255, 255, 255, 0.72); }
+.perm-clock strong {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: clamp(64px, 20vw, 86px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.94);
+  margin-top: 2px;
+}
+
+.perm-stack { position: relative; width: 100%; display: flex; flex-direction: column; gap: 8px; }
+
+.perm-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 22px;
+  background: rgba(44, 44, 48, 0.72);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.14);
+  opacity: calc(1 - var(--i) * 0.28);
+  transform: scale(calc(1 - var(--i) * 0.035));
+  animation: permDrop 620ms cubic-bezier(0.2, 1.1, 0.35, 1) both;
+  animation-delay: calc(320ms + var(--i) * 260ms);
+}
+@keyframes permDrop {
+  from { opacity: 0; transform: translateY(-26px) scale(0.92); }
+}
+
+.perm-note-icon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(160deg, var(--perm-tone), var(--perm-tone-2));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.perm-note-text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.perm-note-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.perm-note-head strong { font-size: 14px; font-weight: 600; color: #fff; }
+.perm-note-head em { font-style: normal; font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+.perm-note-text > span:last-child {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .perm-copy {
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   text-align: center;
-  margin: auto 0;
-  padding: 4px 6px;
+  padding: 0 4px;
+  margin: 8px 0 26px;
+  animation: permRise 600ms cubic-bezier(0.22, 1, 0.36, 1) 180ms both;
 }
-
-.perm-copy h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(28px, 7.4vw, 35px);
-  font-weight: 500;
-  line-height: 1.16;
-  letter-spacing: -0.015em;
-  color: #fff;
-  margin: 0 0 12px;
-}
-
-.perm-overlay[dir="rtl"] .perm-copy h1 {
-  font-family: "Readex Pro", system-ui, sans-serif;
+html body .perm-overlay .perm-copy h1 {
+  font-family: "Readex Pro", Inter, system-ui, sans-serif !important;
+  font-size: clamp(26px, 7.2vw, 31px);
   font-weight: 600;
-  line-height: 1.28;
-  letter-spacing: 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  color: #fff;
+  text-wrap: balance;
 }
-
+.perm-overlay[dir="rtl"] .perm-copy h1 { letter-spacing: 0; line-height: 1.35; }
 .perm-copy p {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 15.5px;
-  line-height: 1.48;
-  color: rgba(255, 255, 255, 0.52);
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(235, 235, 245, 0.56);
   margin: 0;
+  text-wrap: balance;
 }
 
-.perm-overlay[dir="rtl"] .perm-copy p {
-  font-family: "Readex Pro", system-ui, sans-serif;
-  font-size: 14.5px;
-}
+@keyframes permRise { from { opacity: 0; transform: translateY(14px); } }
 
 .perm-actions {
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  gap: 6px;
+  animation: permRise 600ms cubic-bezier(0.22, 1, 0.36, 1) 260ms both;
 }
-
-.perm-primary {
+html body .perm-overlay .perm-primary {
   width: 100%;
-  height: 54px;
+  height: 56px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #18181b;
-  color: #fff;
-  font-size: 15.5px;
-  font-weight: 600;
+  border: 0 !important;
+  background: #fff !important;
+  color: #000 !important;
+  font: 600 16px/1 "Readex Pro", Inter, system-ui, sans-serif;
   cursor: pointer;
-  transition: background 140ms ease, transform 120ms ease;
+  box-shadow: none !important;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
-
-.perm-primary:active {
-  transform: scale(0.985);
-  background: #26262a;
-}
-
-.perm-secondary {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 14.5px;
-  font-weight: 500;
-  padding: 8px 16px;
+html body .perm-overlay .perm-primary:active { transform: scale(0.97); }
+html body .perm-overlay .perm-secondary {
+  height: 48px;
+  border: 0 !important;
+  background: none !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font: 500 15px/1 "Readex Pro", Inter, system-ui, sans-serif;
   cursor: pointer;
+  box-shadow: none !important;
+}
+.perm-overlay button:disabled { opacity: 0.6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .perm-overlay, .perm-overlay * { animation: none !important; }
 }

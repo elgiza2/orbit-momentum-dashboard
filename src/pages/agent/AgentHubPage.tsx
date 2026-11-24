@@ -1,4 +1,5 @@
 import { getCachedUser } from "@/lib/cachedUser";
+import { SquaresFour as PhSquaresFour, Crown as PhCrown, Gift as PhGift } from "@phosphor-icons/react";
 import { useMyProfile } from "@/lib/profile/myProfile";
 import { askConfirm, askText } from "@/components/common/CeyoConfirm";
 import { toast } from "sonner";
@@ -17,11 +18,9 @@ import {
   Star,
   Trash2,
   Grid2X2,
-  Grid2x2Plus,
   Loader2,
   Plus,
   Search,
-  Gift,
   MoreHorizontal,
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
@@ -445,11 +444,11 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
           {appsOpen && <div className="hub-backdrop" onPointerDown={() => setAppsOpen(false)} />}
           {appsOpen && (
             <div className="hub-menu hub-apps-menu" role="menu">
-              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/apps"); }}><Grid2x2Plus size={20} />{ar ? "التكاملات" : "Integrations"}</button>
+              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/apps"); }}><span className="hub-menu-glyph" data-tone="blue"><PhSquaresFour size={17} weight="fill" /></span><span className="hub-menu-label">{ar ? "التكاملات" : "Integrations"}</span></button>
               {!demo && (
                 <>
-                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><Star size={19} />{ar ? "Ceyo Pro" : "Ceyo Pro"}</button>
-                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); toast(ar ? "قريبًا" : "Coming soon"); }}><Gift size={19} />{ar ? "اكسب Pro" : "Win Pro"}</button>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><span className="hub-menu-glyph" data-tone="lime"><PhCrown size={17} weight="fill" /></span><span className="hub-menu-label">Ceyo Pro</span></button>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); toast(ar ? "قريبًا" : "Coming soon"); }}><span className="hub-menu-glyph" data-tone="pink"><PhGift size={17} weight="fill" /></span><span className="hub-menu-label">{ar ? "اكسب Pro" : "Win Pro"}</span><span className="hub-menu-soon">{ar ? "قريبًا" : "Soon"}</span></button>
                 </>
               )}
             </div>
