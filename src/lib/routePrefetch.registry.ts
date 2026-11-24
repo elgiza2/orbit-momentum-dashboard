@@ -17,7 +17,6 @@ import { registerRoute } from "@/lib/routePrefetch";
 registerRoute(/^\/auth(\/|$)/, () => import("@/pages/auth/AuthPage"));
 registerRoute(/^\/chat(\/|$)/, () => import("@/pages/agent/AgentHubPage"));
 registerRoute(/^\/(index)?$/, () => import("@/pages/agent/AgentHubPage"));
-registerRoute(/^\/wallet(\/|$)/, () => import("@/pages/wallet/WalletPage"));
 
 // -- Settings --------------------------------------------------------------
 registerRoute(/^\/settings\/apps(\/|$)/, () => import("@/pages/ceyo/CeyoAppsSettings"));

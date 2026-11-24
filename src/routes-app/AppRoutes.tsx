@@ -21,7 +21,6 @@ import {
 } from "./lazyPages";
 
 const OnboardingPage = lazy(() => import("@/pages/onboarding/OnboardingPage"));
-const WalletPage = lazy(() => import("@/pages/wallet/WalletPage"));
 const CeyoAppsSettings = lazy(() => import("@/pages/ceyo/CeyoAppsSettings"));
 const CeyoSettings = lazy(() => import("@/pages/ceyo/CeyoSettings"));
 
@@ -55,7 +54,6 @@ export const AppRoutes = (_props: { currentUserId: string | null }) => (
       <Route path="/settings/delete-account" element={guard(<DeleteAccountPage />)} />
     </Route>
 
-    <Route path="/wallet" element={guard(<WalletPage />)} />
     <Route path="/settings/apps" element={guard(<CeyoAppsSettings />)} />
     <Route path="/settings/apps/:appId" element={guard(<CeyoAppsSettings />)} />
     <Route path="/settings" element={guard(<CeyoSettings />)} />

@@ -212,13 +212,8 @@ export default function BackgroundJobNotifier() {
 
     void start().catch(() => { /* Realtime is optional; do not crash navigation. */ });
 
-    // Notifications are always on: on the web the browser asks once, on the first tap after sign-in.
-    const askOnce = () => { window.removeEventListener("pointerdown", askOnce); if (!cancelled && !hasPhoneAssistant()) void ensureNotificationPermission(); };
-    if (typeof Notification !== "undefined" && Notification.permission === "default") window.addEventListener("pointerdown", askOnce, { once: true });
-
     return () => {
       cancelled = true;
-      window.removeEventListener("pointerdown", askOnce);
       if (timer) window.clearInterval(timer);
       if (jobChannel) void supabase.removeChannel(jobChannel);
       if (runChannel) void supabase.removeChannel(runChannel);

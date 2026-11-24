@@ -21,7 +21,7 @@ import {
   Loader2,
   Plus,
   Search,
-  Wallet,
+  Gift,
   MoreHorizontal,
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
@@ -34,7 +34,6 @@ import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/clien
 import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/store";
 import { promptUpgrade } from "@/lib/upgradeMoment";
 import { HubChat } from "./hub/HubChat";
-import { HubPromoCards } from "./hub/HubPromoCards";
 import { WelcomeTour } from "./hub/WelcomeTour";
 import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
@@ -445,11 +444,11 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
           {appsOpen && (
             <div className="hub-menu hub-apps-menu" role="menu">
               <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/apps"); }}><Grid2x2Plus size={20} />{ar ? "التكاملات" : "Integrations"}</button>
-              <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/wallet"); }}><Wallet size={20} />{ar ? "المحفظة" : "Wallet"}</button>
               {!demo && (
-                <div className="hub-apps-promos">
-                  <HubPromoCards ar={ar} onOpen={(to) => { setAppsOpen(false); nav(to); }} />
-                </div>
+                <>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); nav("/settings/plans"); }}><Star size={20} />{ar ? "الباقات (PRO)" : "Plans (PRO)"}</button>
+                  <button type="button" role="menuitem" onClick={() => { setAppsOpen(false); toast(ar ? "قريبًا" : "Coming soon"); }}><Gift size={20} />{ar ? "اكسب Pro" : "Win Pro"}</button>
+                </>
               )}
             </div>
           )}
