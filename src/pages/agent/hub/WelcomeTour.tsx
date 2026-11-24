@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Rocket, ChartLineUp, Briefcase, MagnifyingGlass, UsersThree, Wallet, Cpu, CheckCircle, Lightning, PlugsConnected, Brain, Crown, Check } from "@phosphor-icons/react";
+import { Rocket, ChartLineUp, Briefcase, MagnifyingGlass, UsersThree, Wallet, CheckCircle, Lightning, PlugsConnected, Brain, Crown, Check } from "@phosphor-icons/react";
 import "@/styles/welcome-tour.css";
 import { loadPaywallFont } from "@/lib/paywallFont";
 
@@ -53,7 +53,6 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   const [picked, setPicked] = useState<number[]>([]);
   const [scen, setScen] = useState<ScenKey>("launch");
   const [run, setRun] = useState(0);
-  const [feat, setFeat] = useState(0);
   const touch = useRef<number | null>(null);
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   useEffect(() => {
     if (step !== 1) return;
     setRun(0);
-    const id = setInterval(() => setRun((r) => (r >= 4 ? r : r + 1)), 700);
+    const id = setInterval(() => setRun((r) => (r >= 4 ? r : r + 1)), 900);
     return () => clearInterval(id);
   }, [step, scen]);
 
@@ -93,71 +92,54 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
       <div className={`wt-stage ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
         {step === 0 && (
           <>
-            <div className="wt-head">
-              <div className="wt-brand">CEYO</div>
-              <h2>{t("اختار اللي عايز تفوّضه", "Pick what you'd hand off")}</h2>
-              <p>{t("مش بوت دردشة. شريك بيشتغل بدالك.", "Not a chatbot. A partner that does the work.")}</p>
-            </div>
-            <div className="wt-tasks">
-              {TASKS.map(({ Icon, c, en, ar: a }, i) => {
+            <div className="wt-bubbles">
+              {TASKS.map(({ c, en, ar: a }, i) => {
                 const on = picked.includes(i);
                 return (
-                  <button key={en} type="button" aria-pressed={on} className={`wt-task${on ? " on" : ""}`} style={{ ["--c" as string]: c, animationDelay: `${0.15 + i * 0.09}s` }} onClick={() => toggle(i)}>
-                    <span className="wt-task-ic"><Icon weight="bold" /></span>
-                    <span className="wt-task-tx">{ar ? a : en}</span>
-                    <span className="wt-task-ck">{on ? <Check weight="bold" /> : null}</span>
+                  <button key={en} type="button" aria-pressed={on} className={`wt-bub${i % 2 ? " r" : ""}${on ? " on" : ""}`} style={{ ["--c" as string]: c, animationDelay: `${0.1 + i * 0.16}s` }} onClick={() => toggle(i)}>
+                    {ar ? a : en}
+                    <span className="wt-bub-ck"><Check weight="bold" /></span>
                   </button>
                 );
               })}
             </div>
-            <div className="wt-count" key={picked.length}>{picked.length ? t(`${picked.length} مهام جاهزة لـ Ceyo`, `${picked.length} ready for Ceyo`) : t("اضغط على أي مهمة", "Tap any task")}</div>
+            <div className="wt-head">
+              <div className="wt-brand">CEYO</div>
+              <h2>{t("مش بوت دردشة. شريك بيشتغل بدالك.", "Not a chatbot. A partner that does the work.")}</h2>
+              <div className="wt-hint" key={picked.length}>{picked.length ? t(`${picked.length} مهام جاهزة يستلمها Ceyo`, `${picked.length} jobs ready for Ceyo`) : <><span className="wt-tap" />{t("اضغط على المهام اللي عايز تسلّمها", "Tap the jobs you'd hand off")}</>}</div>
+            </div>
           </>
         )}
 
         {step === 1 && (
           <>
-            <div className="wt-head">
-              <h2>{t("شوفه وهو شغال", "Watch it work")}</h2>
-              <p>{t("اختار مهمة وشوف Ceyo بينفذها.", "Pick a job and watch Ceyo run it.")}</p>
-            </div>
             <div className="wt-seg" role="tablist">
-              {(Object.keys(SCEN) as ScenKey[]).map((k) => {
-                const { Icon } = SCEN[k];
-                return <button key={k} type="button" role="tab" aria-selected={scen === k} className={scen === k ? "on" : ""} onClick={() => setScen(k)}><Icon weight="bold" />{ar ? SCEN[k].ar : SCEN[k].en}</button>;
-              })}
-              <span className="wt-seg-pill" style={{ ["--x" as string]: scen === "launch" ? "0%" : "100%" }} />
+              {(Object.keys(SCEN) as ScenKey[]).map((k) => (
+                <button key={k} type="button" role="tab" aria-selected={scen === k} className={scen === k ? "on" : ""} onClick={() => setScen(k)}>{ar ? SCEN[k].ar : SCEN[k].en}</button>
+              ))}
             </div>
-            <div className="wt-console" key={scen}>
-              <div className="wt-ask">{ar ? s.ask.ar : s.ask.en}</div>
-              <div className="wt-live"><span className="wt-pulse" /><Cpu weight="bold" />{run >= 4 ? t("خلصت وبتابع", "Done, keeps watching") : t("شغال دلوقتي", "Working now")}</div>
-              <ol className="wt-steps">
-                {s.steps.map((st, i) => (
-                  <li key={st.en} className={i < run ? "ok" : i === run ? "now" : ""}>
-                    <span className="wt-step-ic">{i < run ? <CheckCircle weight="fill" /> : <span className="wt-spin" />}</span>
-                    {ar ? st.ar : st.en}
-                  </li>
-                ))}
-              </ol>
-              <div className="wt-bar"><i style={{ width: `${(run / 4) * 100}%` }} /></div>
+            <div className="wt-chat" key={scen}>
+              <div className="wt-msg me">{ar ? s.ask.ar : s.ask.en}</div>
+              {run === 0 ? <div className="wt-msg ai wt-typing"><i /><i /><i /></div> : <div className="wt-msg ai">{t("تمام، استلمتها. هبدأ دلوقتي وأبلغك بكل خطوة.", "On it. Starting now, I'll update you at every step.")}</div>}
+              {run > 0 && (
+                <div className="wt-job">
+                  <div className="wt-job-top"><span className={`wt-dot${run >= 4 ? " ok" : ""}`} /><b>{ar ? s.ar : s.en}</b><small>{run >= 4 ? t("شغال 24/7", "Running 24/7") : `${Math.round((run / 4) * 100)}%`}</small></div>
+                  <ul>{s.steps.map((st, i) => <li key={st.en} className={i < run ? "ok" : ""}>{i < run ? <CheckCircle weight="fill" /> : <span className="wt-ring" />}{ar ? st.ar : st.en}</li>)}</ul>
+                </div>
+              )}
+            </div>
+            <div className="wt-head">
+              <h2>{t("أنت بتطلب، Ceyo بينفّذ للآخر", "You ask. Ceyo runs it to the end.")}</h2>
             </div>
           </>
         )}
 
         {step === 2 && (
-          <>
-            <div className="wt-head">
-              <div className="wt-pro-word">PRO</div>
-              <h2>{t("افتح Ceyo بالكامل", "Unlock all of Ceyo")}</h2>
-            </div>
-            <div className="wt-feats">
-              {PRO.map(({ Icon, en, ar: a, d }, i) => (
-                <button key={en} type="button" aria-expanded={feat === i} className={`wt-feat${feat === i ? " on" : ""}`} style={{ animationDelay: `${0.1 + i * 0.08}s` }} onClick={() => setFeat(i)}>
-                  <span className="wt-feat-ic"><Icon weight="bold" /></span>
-                  <span className="wt-feat-body"><b>{ar ? a : en}</b><small>{ar ? d.ar : d.en}</small></span>
-                </button>
-              ))}
-            </div>
-          </>
+          <div className="wt-procard">
+            <div className="wt-pro-word">PRO</div>
+            <p>{t("افتح Ceyo بالكامل", "Unlock all of Ceyo")}</p>
+            <ul>{PRO.map(({ Icon, en, ar: a }, i) => <li key={en} style={{ animationDelay: `${0.2 + i * 0.08}s` }}><Icon weight="bold" />{ar ? a : en}</li>)}</ul>
+          </div>
         )}
       </div>
 
