@@ -1,0 +1,44 @@
+[
+ {
+  "capability": "code",
+  "source": "github elgiza2/orbit-of-token-growth-bfc7b37f",
+  "outcome": "copied as-is (same Lovable TanStack template); kept this project's newer TanStack/Vite pins; fixed broken theme startup script",
+  "status": "migrated",
+  "next_action": "none"
+ },
+ {
+  "capability": "database schema and records",
+  "source": "user's Supabase project kcrssdgsefhpzoidlhhm",
+  "outcome": "kept: this project is connected to the same Supabase project (55 public tables present)",
+  "status": "verified",
+  "next_action": "none"
+ },
+ {
+  "capability": "auth identities",
+  "source": "same Supabase project",
+  "outcome": "kept; 36 existing users and passwords unchanged",
+  "status": "migrated",
+  "next_action": "user sign-in check"
+ },
+ {
+  "capability": "edge functions",
+  "source": "supabase/functions",
+  "outcome": "code copied; already deployed on the user's Supabase",
+  "status": "migrated",
+  "next_action": "redeploy only if changed"
+ },
+ {
+  "capability": "server secrets",
+  "source": "previous Lovable project secrets",
+  "outcome": "secrets stored only in the old Lovable project are not copied",
+  "status": "pending",
+  "next_action": "add provider keys when a feature needs them"
+ },
+ {
+  "capability": "verification",
+  "source": "preview",
+  "outcome": "build OK; home, pricing and sign-in pages load on mobile",
+  "status": "verified",
+  "next_action": "none"
+ }
+]

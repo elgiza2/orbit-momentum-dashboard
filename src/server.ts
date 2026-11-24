@@ -44,15 +44,15 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-// Hosting compresses every response at the edge. Never compress a body (gzip, brotli,
-// CompressionStream) or set content-encoding here or in a server route: the body gets encoded
-// twice and renders garbled.
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const seo = await import("./lib/seo/hostRouting.server");
+      const landing = await seo.landingHostResponse(request);
+      if (landing) return landing;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return seo.withRobotsTag(request, await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

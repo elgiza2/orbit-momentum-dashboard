@@ -1,0 +1,68 @@
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
+import { BootFailed } from "@/components/common/BootFailed";
+import { landingRedirect } from "@/config/domains";
+import { captureGroupInvite } from "@/lib/people/inviteState";
+
+/**
+ * Shared client mount for the Ceyo SPA, used by both "/" and the "/$"
+ * catch-all so the boot path is identical everywhere.
+ *
+ * Why the imports start at module scope: the boot side effects and the app
+ * tree used to be fetched one after the other (boot → then the app chunk),
+ * which meant two network round trips of blank screen before anything
+ * painted. Kicking both off as soon as this module evaluates downloads them
+ * in parallel, while the app tree still waits for boot to finish before it
+ * renders, so ordering is unchanged.
+ */
+function loadChunk<T>(load: () => Promise<T>): Promise<T> {
+  return load().catch(async (err) => {
+    await new Promise((r) => setTimeout(r, 400));
+    try {
+      return await load();
+    } catch {
+      if (typeof window !== "undefined" && !sessionStorage.getItem("chunk-reloaded")) {
+        sessionStorage.setItem("chunk-reloaded", "1");
+        window.location.reload();
+      }
+      throw err;
+    }
+  });
+}
+
+// Landing domains never load the app: leave before any app code is fetched.
+const landingTo = typeof window !== "undefined" ? landingRedirect(window.location.host, window.location.pathname, window.location.search) : null;
+if (landingTo) window.location.replace(landingTo);
+const isClient = typeof window !== "undefined" && !landingTo;
+if (isClient) captureGroupInvite();
+const bootPromise = isClient ? loadChunk(() => import("@/lib/spaBoot")) : null;
+const appPromise = isClient ? loadChunk(() => import("@/lib/SpaApp")) : null;
+
+const SpaAppLazy = lazy(async () => {
+  await (bootPromise ?? loadChunk(() => import("@/lib/spaBoot")));
+  return (appPromise ?? loadChunk(() => import("@/lib/SpaApp"))) as Promise<{
+    default: React.ComponentType;
+  }>;
+});
+
+/** `fallback` stays on screen (e.g. a server-rendered page) until the app has loaded. */
+export function SpaMount({ fallback = null }: { fallback?: ReactNode } = {}) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([bootPromise, appPromise]).catch(() => {
+      // Never leave the screen stuck on the boot mark: surface a retry.
+      if (!cancelled) setFailed(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (landingTo) return null;
+  if (failed) return <BootFailed />;
+  return (
+    <Suspense fallback={fallback}>
+      <SpaAppLazy />
+    </Suspense>
+  );
+}
