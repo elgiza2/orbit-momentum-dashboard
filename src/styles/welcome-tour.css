@@ -58,19 +58,27 @@
 .wt-head-big h2,.wt-head-pro .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400}
 .wt-head-big h2{font-size:30px;line-height:1.15;margin:0;max-width:none}
 .wt-head-big p,.wt-head-pro p{margin:10px 0 0;font-size:15px;line-height:1.5;color:#fff9}
-/* slide 3: hero orb + PRO invite */
-.wt-pro-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:wt-up .55s var(--ease) both}
-.wt-pro-orb{position:relative;margin-bottom:34px;display:grid;place-items:center}
-.wt-pro-orb::before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#dcfc7c33 0%,#5ee0a014 45%,transparent 72%);pointer-events:none}
-.wt-pro-hero .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:44px;line-height:1}
-.wt-pro-hero .wt-brand span{color:var(--lime)}
-.wt-limited{margin-top:16px;font-size:22px;font-weight:700;line-height:1.35;color:#fff;max-width:320px}
-.wt-pro-sub{margin:10px 0 0;font-size:15px;line-height:1.5;color:#fff8;max-width:290px}
-.wt-pro-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:8px}
-.wt-pro-btn{width:100%;border:0;border-radius:999px;background:var(--lime);color:#0b0b0c;font-size:18px;font-weight:800;padding:17px;transition:transform .2s var(--ease)}
+/* slide 3: monochrome PRO invite */
+.wt-glow[data-step="2"]{background:radial-gradient(90% 45% at 50% 8%,#ffffff17,transparent 70%)}
+.wt-pro-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:wt-up .6s var(--ease) both}
+.wt-pro-orb{position:relative;width:230px;height:230px;margin-bottom:28px;display:grid;place-items:center}
+.wt-pro-orb::before{content:"";position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle,#ffffff2e,transparent 70%);filter:blur(18px);animation:wt-breathe 3.6s ease-in-out infinite}
+.wt-pro-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 70%,#ffffffb0 86%,transparent 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));animation:wt-spin 5s linear infinite}
+.wt-pro-ring.r2{inset:22px;opacity:.5;animation-duration:8s;animation-direction:reverse}
+.wt-pro-orb .ag-orb{position:relative;z-index:1}
+@keyframes wt-spin{to{transform:rotate(360deg)}}
+@keyframes wt-breathe{50%{transform:scale(1.15);opacity:.7}}
+.wt-pro-kicker{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#fff8;margin-bottom:12px}
+[dir=rtl] .wt-pro-kicker{letter-spacing:0;font-size:14px}
+.wt-pro-hero .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:46px;line-height:1;background:linear-gradient(100deg,#fff 0 40%,#ffffff70 50%,#fff 60% 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wt-sheen 4.5s ease-in-out infinite}
+@keyframes wt-sheen{0%{background-position:100% 0}60%,100%{background-position:-50% 0}}
+.wt-limited{margin-top:18px;font-size:23px;font-weight:700;line-height:1.35;color:#fff;max-width:320px}
+.wt-pro-sub{margin:8px 0 0;font-size:15px;line-height:1.5;color:#fff8;max-width:290px}
+.wt-pro-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:6px}
+.wt-pro-btn{width:100%;border:0;border-radius:999px;background:#fff;color:#000;font-size:18px;font-weight:800;padding:17px;box-shadow:0 10px 40px -10px #ffffff66;transition:transform .2s var(--ease)}
 .wt-pro-btn:active{transform:scale(.97)}
 /* buttons */
 .wt-next{position:relative;z-index:2;border:0;border-radius:999px;background:#fff;color:#000;font-size:17px;font-weight:700;padding:17px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .2s var(--ease)}
 .wt-next:active{transform:scale(.97)}
-.wt-free{width:100%;padding:13px;border:0;border-radius:999px;background:none;color:#fff9;font-size:15px;font-weight:600}
+.wt-free{width:100%;padding:13px;border:0;border-radius:999px;background:none;color:#fff8;font-size:15px;font-weight:600}
 .wt-top{min-height:18px}

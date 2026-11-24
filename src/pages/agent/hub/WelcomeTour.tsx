@@ -109,9 +109,12 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         {step === 2 && (
           <div className="wt-pro-hero">
             <div className="wt-pro-orb">
-              <AgentOrb color="mint" state="hello" size={140} />
+              <span className="wt-pro-ring" aria-hidden="true" />
+              <span className="wt-pro-ring r2" aria-hidden="true" />
+              <AgentOrb color="mono" state="hello" size={128} />
             </div>
-            <div className="wt-brand">CEYO <span>PRO</span></div>
+            <div className="wt-pro-kicker">{t("دعوة خاصة", "Private invite")}</div>
+            <div className="wt-brand">CEYO PRO</div>
             <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
             <p className="wt-pro-sub">{t("فريق ذكاء اصطناعي شغّال بدالك 24/7.", "Your own AI team working for you 24/7.")}</p>
           </div>
