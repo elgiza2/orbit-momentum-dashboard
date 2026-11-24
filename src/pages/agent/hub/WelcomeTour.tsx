@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Desktop, UsersThree, Plugs, MoonStars } from "@phosphor-icons/react";
+import { Desktop, UsersThree, Plugs, MoonStars, Globe, PhoneCall, EnvelopeSimple, CalendarBlank, ChatCircleDots, Notebook, Code, FolderSimple } from "@phosphor-icons/react";
 import "@/styles/welcome-tour.css";
 import { loadPaywallFont } from "@/lib/paywallFont";
 
@@ -14,12 +14,16 @@ const TASKS = [
   { c: "#fca27a", en: "Track my team's work around the clock", ar: "تابع شغل فريقي طول اليوم" },
 ];
 
-const RUNS = [
-  { reply: { en: "On it. I'll build the plan, split tasks with your team and follow up every morning.", ar: "استلمته. هبني الخطة وأوزع المهام على فريقك وأتابع كل صبح." }, badge: { en: "Daily, 09:00 AM", ar: "يوميًا، 09:00 ص" }, card: { en: "Launch plan, team tasks and morning progress report", ar: "خطة الإطلاق ومهام الفريق وتقرير التقدم الصبح" } },
-  { reply: { en: "Watching 3 markets now. I'll alert you on every move and ask before any trade.", ar: "براقب 3 أسواق دلوقتي. هنبهك مع كل حركة وآخد إذنك قبل أي صفقة." }, badge: { en: "Live, 24/7", ar: "مباشر، 24/7" }, card: { en: "Liquidity watch, entry and exit alerts", ar: "مراقبة السيولة وتنبيهات الدخول والخروج" } },
-  { reply: { en: "Done. I sorted your inbox, flagged 2 contracts to sign and cleared your afternoon.", ar: "تم. رتبت الإيميلات وحددت عقدين للتوقيع وفضّيت بعد الضهر." }, badge: { en: "Weekdays, 08:00 AM", ar: "أيام الشغل، 08:00 ص" }, card: { en: "Inbox, contracts and calendar summary", ar: "ملخص الإيميلات والعقود والمواعيد" } },
-  { reply: { en: "Scanning your competitors now. You'll get the gaps and a plan to win them.", ar: "بفحص منافسينك دلوقتي. هتوصلك الثغرات وخطة تكسب بيها." }, badge: { en: "Every Monday", ar: "كل اتنين" }, card: { en: "Competitor gaps and weekly opportunities", ar: "ثغرات المنافسين وفرص الأسبوع" } },
-  { reply: { en: "Connected to Slack and Notion. I'll track every task and flag what's late.", ar: "اتربطت بـ Slack وNotion. هتابع كل مهمة وأنبهك على المتأخر." }, badge: { en: "Daily, 06:00 PM", ar: "يوميًا، 06:00 م" }, card: { en: "Team progress and late tasks", ar: "تقدم الفريق والمهام المتأخرة" } },
+const TOOLS = [
+  { Icon: Globe, c: "#dcfc7c", en: "Browser", ar: "متصفح", d: { en: "Opens sites, fills forms and gets things done", ar: "بيفتح مواقع ويملأ فورمات ويخلّص شغلك" } },
+  { Icon: PhoneCall, c: "#86ece8", en: "Phone", ar: "هاتف", d: { en: "Talk to Ceyo live by voice or video", ar: "كلّم Ceyo صوت أو فيديو في أي وقت" } },
+  { Icon: Desktop, c: "#f3e3cf", en: "Cloud PC", ar: "كمبيوتر", d: { en: "Its own computer running tasks in the cloud", ar: "كمبيوتر خاص بيه بيشتغل على السحابة" } },
+  { Icon: EnvelopeSimple, c: "#fca27a", en: "Gmail", ar: "Gmail", d: { en: "Reads, sorts and replies to your emails", ar: "بيقرأ ويرتب ويرد على إيميلاتك" } },
+  { Icon: CalendarBlank, c: "#fcd27e", en: "Calendar", ar: "التقويم", d: { en: "Books meetings and protects your time", ar: "بيحجز مواعيدك وينظّم يومك" } },
+  { Icon: ChatCircleDots, c: "#c4a8ff", en: "Slack", ar: "Slack", d: { en: "Follows up with your team automatically", ar: "بيتابع مع فريقك أول بأول" } },
+  { Icon: Notebook, c: "#f3e3cf", en: "Notion", ar: "Notion", d: { en: "Updates docs, notes and project boards", ar: "بيحدّث ملفاتك ومشاريعك تلقائيًا" } },
+  { Icon: Code, c: "#86ece8", en: "GitHub", ar: "GitHub", d: { en: "Tracks repos, issues and releases", ar: "بيتابع الكود والمهام والإصدارات" } },
+  { Icon: FolderSimple, c: "#dcfc7c", en: "Drive", ar: "Drive", d: { en: "Finds, reads and organizes your files", ar: "بيلاقي ويقرأ ويرتب ملفاتك" } },
 ];
 
 const PRO = [
@@ -36,29 +40,19 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   const [dir, setDir] = useState(1);
   const [pick, setPick] = useState(0);
   const [sent, setSent] = useState<number | null>(null);
-  const [run, setRun] = useState(0);
   const touch = useRef<number | null>(null);
 
   useEffect(() => {
     try { if (force || !localStorage.getItem(KEY)) { loadPaywallFont(); setOpen(true); } } catch { /* storage blocked */ }
   }, [force]);
 
-  useEffect(() => {
-    if (step !== 1) return;
-    setRun(0);
-    const t1 = setTimeout(() => setRun(1), 1100);
-    const t2 = setTimeout(() => setRun(2), 1700);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [step, pick]);
-
   if (!open) return null;
   const t = (a: string, e: string) => (ar ? a : e);
   const close = () => { try { localStorage.setItem(KEY, "1"); } catch { /* ignore */ } setOpen(false); onDone?.(); };
   const go = (n: number) => { if (n < 0 || n > 2) return; setDir(n > step ? 1 : -1); setStep(n); };
   const goPlans = () => { close(); nav({ to: "/settings/plans" }); };
-  const send = (i: number) => { if (sent != null) return; navigator.vibrate?.(10); setSent(i); setPick(i); setTimeout(() => { setSent(null); go(1); }, 520); };
-  const task = TASKS[pick] ?? TASKS[0]!;
-  const r = RUNS[pick] ?? RUNS[0]!;
+  const send = (i: number) => { if (sent != null) return; navigator.vibrate?.(10); setSent(i); setTimeout(() => { setSent(null); go(1); }, 520); };
+  const tool = TOOLS[pick] ?? TOOLS[0]!;
   const fwd = ar ? -1 : 1;
 
   return (
@@ -95,20 +89,23 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
 
         {step === 1 && (
           <>
-            <div className="wt-chat" key={pick} style={{ ["--c" as string]: task.c }}>
-              <div className="wt-msg me">{ar ? task.ar : task.en}</div>
-              {run === 0 ? <div className="wt-typing"><i /><i /><i /></div> : <p className="wt-ai">{(ar ? r.reply.ar : r.reply.en).split(" ").map((w, i) => <span key={i} style={{ animationDelay: `${i * 0.04}s` }}>{w} </span>)}</p>}
-              {run > 1 && (
-                <div className="wt-job">
-                  <span className="wt-badge">{ar ? r.badge.ar : r.badge.en}</span>
-                  <p>{ar ? r.card.ar : r.card.en}</p>
-                  <div className="wt-bar"><i /></div>
-                </div>
-              )}
+            <div className="wt-tools-wrap">
+              <div className="wt-tools">
+                {TOOLS.map(({ Icon, c, en, ar: a }, i) => (
+                  <button key={en} type="button" className={`wt-tool${pick === i ? " on" : ""}`} style={{ ["--c" as string]: c, animationDelay: `${0.06 + i * 0.05}s` }} onClick={() => setPick(i)}>
+                    <Icon weight="fill" />
+                    <span>{ar ? a : en}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="wt-tool-note" key={pick} style={{ ["--c" as string]: tool.c }}>
+                <b>{ar ? tool.ar : tool.en}</b>
+                <span>{ar ? tool.d.ar : tool.d.en}</span>
+              </div>
             </div>
             <div className="wt-head wt-head-big">
-              <h2>{t("أنت بتطلب، Ceyo بيكمّل للآخر.", "You ask. Ceyo runs it to the end.")}</h2>
-              <p>{t("بيشتغل لوحده كل يوم ويرجعلك بالنتيجة، من غير ما تفكره.", "It works on its own every day and reports back, no reminders needed.")}</p>
+              <h2>{t("شغّال على كل تطبيقاتك.", "Works across all your apps.")}</h2>
+              <p>{t("عنده متصفح وهاتف وكمبيوتر خاص بيه، ومتربط بكل تطبيقات شغلك.", "Its own browser, phone and cloud PC, connected to every app you use.")}</p>
             </div>
           </>
         )}
@@ -118,12 +115,15 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
             <div className="wt-head wt-head-pro">
               <div className="wt-brand">CEYO <span>PRO</span></div>
               <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
-              <p>{t("سلّم شغلك وحياتك لعقل بيشتغل من غير حدود.", "Hand your work and life to a mind with no limits.")}</p>
             </div>
-            <div className="wt-procard">
-              <ul>{PRO.map(({ Icon, en, ar: a, d }, i) => <li key={en} style={{ animationDelay: `${0.15 + i * 0.08}s` }}><Icon weight="fill" /><div><b>{ar ? a : en}</b><small>{ar ? d.ar : d.en}</small></div></li>)}</ul>
-              <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
-            </div>
+            <ul className="wt-prolist">
+              {PRO.map(({ Icon, en, ar: a, d }, i) => (
+                <li key={en} style={{ animationDelay: `${0.12 + i * 0.07}s` }}>
+                  <span className="wt-pro-ico"><Icon weight="fill" /></span>
+                  <div><b>{ar ? a : en}</b><small>{ar ? d.ar : d.en}</small></div>
+                </li>
+              ))}
+            </ul>
           </>
         )}
       </div>
@@ -131,9 +131,10 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
       {step < 2 ? (
         <button type="button" className="wt-next" onClick={() => go(step + 1)}>{t("كمّل", "Continue")}</button>
       ) : (
-        <>
-          <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية المحدودة", "Continue with the limited free plan")}</button>
-        </>
+        <div className="wt-pro-actions">
+          <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
+          <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
+        </div>
       )}
     </div>
   );

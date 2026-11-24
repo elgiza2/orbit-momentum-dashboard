@@ -1,6 +1,7 @@
 .wt{--ease:cubic-bezier(.16,1,.3,1);--lime:#dcfc7c;position:fixed;inset:0;z-index:200;background:#050506;color:#fff;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);font-family:"Readex Pro",system-ui,sans-serif;overflow:hidden;touch-action:pan-y}
 .wt button{font-family:inherit;-webkit-tap-highlight-color:transparent;cursor:pointer}
-.wt-glow{display:none}
+.wt-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 0%,#dcfc7c18,transparent 55%);opacity:0;transition:opacity .5s var(--ease)}
+.wt-glow[data-step="2"]{opacity:1}
 .wt-top{position:relative;z-index:2;display:flex;align-items:center;gap:14px}
 .wt-bars{flex:1;display:flex;gap:6px}
 .wt-bars button{flex:1;height:18px;background:none;border:0;padding:0;display:flex;align-items:center}
@@ -38,19 +39,19 @@
 .wt-bub.fade{animation:wt-out .35s ease forwards}
 @keyframes wt-send{30%{transform:scale(1.06)}100%{transform:translateY(-40px) scale(.9);opacity:0}}
 @keyframes wt-out{to{opacity:0;transform:scale(.92)}}
-/* slide 2: chat */
-.wt-chat{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px}
-.wt-msg.me{align-self:flex-end;max-width:84%;background:#1f1f22;color:#fff;padding:14px 18px;border-radius:24px 24px 6px 24px;font-size:16px;line-height:1.4;animation:wt-up .45s var(--ease) both}
-[dir=rtl] .wt-msg.me{border-radius:24px 24px 24px 6px}
-.wt-ai{margin:0;font-size:16px;line-height:1.55;color:#fff;animation:wt-up .45s var(--ease) both}
-.wt-typing{display:flex;gap:5px;padding:6px 2px}
-.wt-typing i{width:7px;height:7px;border-radius:50%;background:#fff9;animation:wt-blink 1s infinite}
-.wt-typing i:nth-child(2){animation-delay:.15s}.wt-typing i:nth-child(3){animation-delay:.3s}
-@keyframes wt-blink{50%{opacity:.25;transform:translateY(-3px)}}
-.wt-job{background:#141416;border:1px solid #ffffff10;border-radius:22px;padding:16px 18px;animation:wt-up .55s var(--ease) both}
-.wt-job p{margin:12px 0 0;font-size:15px;line-height:1.45;color:#fffd}
-.wt-badge{display:inline-flex;align-items:center;gap:8px;background:#dcfc7c1f;color:var(--lime);font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
-.wt-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:wt-blink 1.2s infinite}
+/* slide 2: integrations & tools */
+.wt-tools-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px}
+.wt-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.wt-tool{border:1.5px solid transparent;border-radius:22px;background:#131316;color:#fff;padding:16px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;animation:wt-pop-in .5s var(--ease) both;transition:transform .2s var(--ease),background .2s,border-color .2s}
+.wt-tool svg{font-size:26px;color:var(--c)}
+.wt-tool span{font-size:13px;font-weight:600;color:#fffd}
+.wt-tool.on{background:var(--c);color:#0b0b0c;transform:scale(1.03)}
+.wt-tool.on svg,.wt-tool.on span{color:#0b0b0c}
+.wt-tool:active{transform:scale(.95)}
+@keyframes wt-pop-in{from{opacity:0;transform:scale(.85) translateY(14px)}}
+.wt-tool-note{background:#131316;border-inline-start:3px solid var(--c);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;animation:wt-up .3s var(--ease) both}
+.wt-tool-note b{font-size:14px;font-weight:700;color:var(--c)}
+.wt-tool-note span{font-size:14px;color:#fffc;line-height:1.4}
 .wt-head-big{text-align:start}
 .wt-head-big h2,.wt-head-pro .wt-brand{font-family:"Dela Gothic One",sans-serif;font-weight:400}
 .wt-head-big h2{font-size:30px;line-height:1.15;margin:0;max-width:none}
@@ -58,41 +59,19 @@
 /* slide 3: PRO */
 .wt-head-pro{text-align:start;animation:wt-up .5s var(--ease) both}
 .wt-head-pro .wt-brand{font-size:46px}
-.wt-head-pro .wt-brand span{color:var(--lime)}
-.wt-procard{background:var(--lime);color:#0b0b0c;border-radius:28px;padding:22px 20px 20px;animation:wt-up .6s var(--ease) .1s both}
-.wt-procard ul{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:14px}
-.wt-procard li{display:flex;align-items:flex-start;gap:12px;animation:wt-up .45s var(--ease) both}
-.wt-procard li svg{font-size:22px;flex:none;margin-top:1px}
-.wt-procard li b{display:block;font-size:16px;font-weight:700}
-.wt-procard li small{display:block;font-size:13px;opacity:.7;margin-top:2px}
-.wt-pro-btn{width:100%;border:0;border-radius:999px;background:#0b0b0c;color:#fff;font-size:17px;font-weight:700;padding:16px;transition:transform .2s var(--ease)}
+.wt-head-pro .wt-brand span{color:var(--lime);text-shadow:0 0 28px #dcfc7c44}
+.wt-limited{margin-top:12px;font-size:21px;font-weight:700;line-height:1.35;color:#fff;letter-spacing:-.01em}
+.wt-prolist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.wt-prolist li{display:flex;align-items:center;gap:14px;background:#121215;border:1px solid #ffffff10;border-radius:20px;padding:14px 16px;animation:wt-up .45s var(--ease) both}
+.wt-pro-ico{width:40px;height:40px;border-radius:14px;background:#dcfc7c1a;color:var(--lime);display:grid;place-items:center;flex:none}
+.wt-pro-ico svg{font-size:22px}
+.wt-prolist li b{display:block;font-size:15px;font-weight:700;color:#fff}
+.wt-prolist li small{display:block;font-size:13px;color:#fff8;margin-top:2px;line-height:1.35}
+.wt-pro-actions{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px}
+.wt-pro-btn{width:100%;border:0;border-radius:999px;background:var(--lime);color:#0b0b0c;font-size:18px;font-weight:800;padding:17px;transition:transform .2s var(--ease)}
 .wt-pro-btn:active{transform:scale(.97)}
 /* buttons */
 .wt-next{position:relative;z-index:2;border:0;border-radius:999px;background:#fff;color:#000;font-size:17px;font-weight:700;padding:17px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .2s var(--ease)}
 .wt-next:active{transform:scale(.97)}
-.wt-free{position:relative;z-index:2;border:0;background:none;color:#fff9;font-size:14px;padding:12px 0 0}
-
-/* slide 2 v2 */
-.wt-msg.me{background:var(--c);color:#0b0b0c;font-weight:600;font-size:17px}
-.wt-ai span{display:inline;opacity:0;animation:wt-word .35s ease forwards}
-@keyframes wt-word{to{opacity:1}}
-.wt-ai{font-size:18px;font-weight:500}
-.wt-job{background:#121214;border:0;border-radius:26px;padding:18px 20px;position:relative;overflow:hidden;animation:wt-card .6s var(--ease) both}
-@keyframes wt-card{from{opacity:0;transform:translateY(24px) scale(.96)}}
-.wt-job p{font-size:17px;font-weight:600;color:#fff}
-.wt-badge{background:color-mix(in oklab,var(--c) 18%,transparent);color:var(--c)}
-.wt-dot{background:var(--c)}
-.wt-bar{margin-top:16px;height:6px;border-radius:6px;background:#ffffff14;overflow:hidden}
-.wt-bar i{display:block;height:100%;width:100%;background:var(--c);border-radius:6px;transform-origin:left;animation:wt-fill 2.4s var(--ease) .3s both}
-[dir=rtl] .wt-bar i{transform-origin:right}
-@keyframes wt-fill{from{transform:scaleX(0)}}
-/* slide 3 */
-.wt-head-pro .wt-brand span{color:var(--lime);text-shadow:0 0 28px #dcfc7c55}
-.wt-limited{margin-top:14px;font-size:21px;font-weight:700;line-height:1.35;color:#fff;letter-spacing:-.01em}
-.wt-procard{background:var(--lime);position:relative;overflow:hidden}
-.wt-procard::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,#ffffffa0,transparent);transform:skewX(-20deg);animation:wt-sweep 3.5s ease-in-out 1s infinite;pointer-events:none}
-@keyframes wt-sweep{0%{left:-60%}40%,100%{left:130%}}
-.wt-procard>*{position:relative;z-index:1}
-.wt-pro-btn{font-size:18px;padding:18px;box-shadow:0 8px 20px -8px #0008}
-.wt-free{width:100%;margin-top:12px;padding:15px;border:1.5px solid #ffffff33 !important;border-radius:999px;color:#fff;font-size:15px;font-weight:600}
+.wt-free{width:100%;padding:13px;border:0;border-radius:999px;background:none;color:#fff9;font-size:15px;font-weight:600}
 .wt-top{min-height:18px}
