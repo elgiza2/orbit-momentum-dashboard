@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { ChartLineUp, PlugsConnected, Brain, Crown } from "@phosphor-icons/react";
+import { Desktop, UsersThree, Plugs, MoonStars } from "@phosphor-icons/react";
 import "@/styles/welcome-tour.css";
 import { loadPaywallFont } from "@/lib/paywallFont";
 
@@ -23,10 +23,10 @@ const RUNS = [
 ];
 
 const PRO = [
-  { Icon: Crown, en: "Runs whole projects on its own", ar: "بيدير مشاريع كاملة لوحده", d: { en: "Plans, assigns, follows up and reports back.", ar: "بيخطط ويوزع ويتابع ويرجعلك بالنتيجة." } },
-  { Icon: ChartLineUp, en: "Wallet and trading tools", ar: "أدوات المحفظة والتداول", d: { en: "Live prices, alerts and trades you approve.", ar: "أسعار حية وتنبيهات وصفقات بموافقتك." } },
-  { Icon: PlugsConnected, en: "Connects 1000+ apps", ar: "بيتربط بأكتر من 1000 تطبيق", d: { en: "Gmail, Slack, Notion, Drive and more.", ar: "Gmail وSlack وNotion وDrive وغيرهم." } },
-  { Icon: Brain, en: "Up to x10 more usage", ar: "استخدام أكتر لحد x10", d: { en: "Deeper thinking for the heavy work.", ar: "تفكير أعمق للشغل التقيل." } },
+  { Icon: Desktop, en: "Its own computer in the cloud", ar: "كمبيوتر خاص بيه على السحابة", d: { en: "Browses, fills forms and finishes tasks for you.", ar: "بيتصفح ويملأ الفورمات ويخلّص المهام بدالك." } },
+  { Icon: UsersThree, en: "A team of bots that work together", ar: "فريق بوتات بيشتغلوا مع بعض", d: { en: "Each bot has a role, Ceyo coordinates them.", ar: "كل بوت ليه دور، وCeyo بينسّق بينهم." } },
+  { Icon: Plugs, en: "Your apps, connected", ar: "تطبيقاتك كلها متربطة", d: { en: "Gmail, Calendar, Slack, Notion and more.", ar: "Gmail وCalendar وSlack وNotion وغيرهم." } },
+  { Icon: MoonStars, en: "Works while you sleep", ar: "بيشتغل وانت نايم", d: { en: "Daily routines and long jobs run on their own.", ar: "روتين يومي ومهام طويلة بتتنفذ لوحدها." } },
 ];
 
 export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
@@ -100,7 +100,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
               {run === 0 ? <div className="wt-typing"><i /><i /><i /></div> : <p className="wt-ai">{(ar ? r.reply.ar : r.reply.en).split(" ").map((w, i) => <span key={i} style={{ animationDelay: `${i * 0.04}s` }}>{w} </span>)}</p>}
               {run > 1 && (
                 <div className="wt-job">
-                  <span className="wt-badge"><span className="wt-dot" />{ar ? r.badge.ar : r.badge.en}</span>
+                  <span className="wt-badge">{ar ? r.badge.ar : r.badge.en}</span>
                   <p>{ar ? r.card.ar : r.card.en}</p>
                   <div className="wt-bar"><i /></div>
                 </div>
@@ -116,7 +116,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         {step === 2 && (
           <>
             <div className="wt-head wt-head-pro">
-              <span className="wt-limited"><i />{t("متاح لعدد محدود من المستخدمين فقط", "Available to a limited number of users only")}</span>
+              <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Limited to a few users only")}</div>
               <div className="wt-brand">CEYO <span>PRO</span></div>
               <p>{t("سلّم شغلك وحياتك لعقل بيشتغل من غير حدود.", "Hand your work and life to a mind with no limits.")}</p>
             </div>
