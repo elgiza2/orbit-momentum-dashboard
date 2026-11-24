@@ -29,3 +29,20 @@
 .hub-promo-card{border-radius:18px}
 .hub-promo-word i{border-radius:0;color:var(--promo-on);background:none;box-shadow:none}
 .hub-promo-cta{border-radius:999px;background:var(--promo-on);color:var(--c);font-weight:600}
+
+/* Inside the home three-dots menu: keep the exact bright PRO/WIN cards intact. */
+.hub-apps-menu:has(.hub-apps-promos){width:min(332px,calc(100vw - 28px));min-width:296px}
+.hub-apps-promos{padding:10px 10px 4px;border-top:1px solid rgba(255,255,255,.06)}
+html[data-theme="light"] .hub-apps-promos{border-top-color:rgba(0,0,0,.06)}
+.hub-apps-menu .hub-promo{margin:0;padding:0;gap:8px;overflow:visible}
+.hub-apps-menu .hub-promo-card,
+html[data-theme="light"] .hub-apps-menu .hub-promo-card{
+  display:flex;flex:1 1 0;width:auto;min-height:58px;align-items:center;justify-content:space-between;gap:6px;
+  padding:8px 10px;border:0;border-radius:18px;background:var(--c) !important;color:var(--promo-on) !important;
+  font-size:inherit;font-weight:inherit;text-align:center;
+}
+.hub-apps-menu .hub-promo-card + .hub-promo-card{border-top:0}
+.hub-apps-menu .hub-promo-card:hover,
+html[data-theme="light"] .hub-apps-menu .hub-promo-card:hover{background:var(--c) !important;filter:brightness(.97)}
+.hub-apps-menu .hub-promo-word i{width:22px;min-height:26px;font-size:18px;color:var(--promo-on) !important}
+.hub-apps-menu .hub-promo-cta{padding:5px 9px;font-size:10.5px;background:var(--promo-on) !important;color:var(--c) !important}
