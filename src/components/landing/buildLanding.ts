@@ -28,7 +28,7 @@ export const LANDING_EXTRA: Record<string, Extra> = {
   en: {
     plansTitle: "Plans for your next project",
     plansBody: "Every plan starts with a 3-day free trial: up to 1,000,000 tokens a day. Link a card to start; your plan is charged only when the trial ends, unless you cancel.",
-    note: "Prices in USD. Local currency and payment methods are shown at checkout. Annual billing is available for Plus only.",
+    note: "Prices in USD. Local currency and payment methods are shown at checkout. Every plan is also available yearly.",
     month: "/month", yearly: "or ${p}/year, billed annually", monthly: "Billed monthly",
     choose: "Start 3-day free trial", trial: "3-day free trial",
     pricingEyebrow: "Plans and free trial", pricingBody: "See everything Ceyo bots can do and pick a plan. Try any plan free for 3 days.",
@@ -42,7 +42,7 @@ export const LANDING_EXTRA: Record<string, Extra> = {
   ar: {
     plansTitle: "باقات لمشروعك الجاي",
     plansBody: "كل باقة بتبدأ بتجربة مجانية 3 أيام: لحد مليون توكن في اليوم. اربط كارتك عشان تبدأ، والباقة بتتخصم بس لما التجربة تخلص، إلا لو لغيت.",
-    note: "الأسعار بالدولار. العملة المحلية وطرق الدفع بتظهر وقت الدفع. الاشتراك السنوي متاح لباقة Plus بس.",
+    note: "الأسعار بالدولار. العملة المحلية وطرق الدفع بتظهر وقت الدفع. كل الباقات متاحة كمان باشتراك سنوي.",
     month: "/شهريًا", yearly: "أو ${p} في السنة", monthly: "بيتجدد شهريًا",
     choose: "ابدأ التجربة المجانية 3 أيام", trial: "تجربة مجانية 3 أيام",
     pricingEyebrow: "الباقات والتجربة المجانية", pricingBody: "اتعرف على كل اللي روبوتات Ceyo تقدر تعمله واختار باقتك. جرّب أي باقة مجانًا 3 أيام.",

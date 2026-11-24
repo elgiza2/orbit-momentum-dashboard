@@ -6,6 +6,7 @@ describe("plan prices", () => {
   it("Plus costs $199 yearly", () => expect(priceOf("plus", "yearly")).toBe(199));
   it("Pro costs $60 monthly", () => expect(priceOf("pro", "monthly")).toBe(60));
   it("Ultra costs $120 monthly", () => expect(priceOf("ultra", "monthly")).toBe(120));
-  it("Pro is not sold yearly", () => expect(priceOf("pro", "yearly")).toBeNull());
+  it("Pro costs $599 yearly", () => expect(priceOf("pro", "yearly")).toBe(599));
+  it("Ultra costs $1,199 yearly", () => expect(priceOf("ultra", "yearly")).toBe(1199));
   it("unknown tiers are rejected", () => expect(priceOf("free", "monthly")).toBeNull());
 });

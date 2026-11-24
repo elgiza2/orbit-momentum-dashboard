@@ -9,60 +9,90 @@
 .ceyo-paywall[data-tier=plus]{--pw-tier:var(--pw-plus)}
 .ceyo-paywall[data-tier=ultra]{--pw-tier:var(--pw-ultra)}
 .agent-hub.ceyo-page.subscription-page.ceyo-paywall{font-family:var(--pw-body);background:var(--subscription-bg)!important;color:var(--subscription-ink)}
-.ceyo-paywall .paywall-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;width:100%;max-width:480px;margin:0 auto;padding:calc(12px + max(env(safe-area-inset-top),var(--safe-top,0px))) 20px calc(20px + max(env(safe-area-inset-bottom),var(--safe-bottom,0px)));display:flex;flex-direction:column}
+.agent-hub.ceyo-page.subscription-page.ceyo-paywall{height:100dvh;overflow:hidden}
+/* Everything fits one screen: sizes follow the screen height, so nothing needs scrolling. */
+.ceyo-paywall .paywall-scroll{flex:1;min-height:0;height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;width:100%;max-width:480px;margin:0 auto;padding:calc(8px + max(env(safe-area-inset-top),var(--safe-top,0px))) 20px calc(6px + max(env(safe-area-inset-bottom),var(--safe-bottom,0px)));display:flex;flex-direction:column}
 .ceyo-paywall .paywall-scroll::-webkit-scrollbar{display:none}
 
-.ceyo-paywall .paywall-top{display:flex;justify-content:flex-start;min-height:48px}
-.ceyo-paywall .paywall-close{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:var(--subscription-raised);color:var(--subscription-ink);cursor:pointer;transition:transform .15s ease,background .2s ease}
+.ceyo-paywall .paywall-top{display:flex;justify-content:flex-start;flex:none;margin-bottom:auto}
+.ceyo-paywall .paywall-close{display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:var(--subscription-raised);color:var(--subscription-ink);cursor:pointer;transition:transform .15s ease,background .2s ease}
 .ceyo-paywall .paywall-close:active{transform:scale(.92)}
+.ceyo-paywall .paywall-top{align-items:center;justify-content:space-between}
+/* One Yearly switch for every plan, iOS toggle look. */
+.ceyo-paywall .paywall-yearly{display:flex;align-items:center;gap:10px;height:40px;padding:0 6px 0 14px;border:0;border-radius:999px;background:var(--subscription-raised);color:var(--subscription-ink);font:500 14px/1 var(--pw-body);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ceyo-paywall[dir=rtl] .paywall-yearly{padding:0 14px 0 6px}
+.ceyo-paywall .paywall-yearly>span{display:flex;align-items:center;gap:6px}
+.ceyo-paywall .paywall-yearly em{font-style:normal;font-size:12px;padding:3px 7px;border-radius:999px;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
+.ceyo-paywall .paywall-yearly i{--k:24px;position:relative;width:46px;height:28px;border-radius:999px;background:var(--subscription-line);transition:background-color .3s ease}
+.ceyo-paywall .paywall-yearly i::after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:var(--k);height:var(--k);border-radius:50%;background:var(--subscription-ink);box-shadow:0 2px 6px rgb(0 0 0 / 30%);transition:transform .45s cubic-bezier(.32,.72,0,1),width .2s ease}
+.ceyo-paywall .paywall-yearly:active i::after{width:30px}
+.ceyo-paywall .paywall-yearly[aria-checked=true] i{background:var(--pw-tier)}
+.ceyo-paywall .paywall-yearly[aria-checked=true] i::after{transform:translateX(calc(18px * var(--sdir,1)))}
+.ceyo-paywall .paywall-yearly[aria-checked=true]:active i::after{transform:translateX(calc(12px * var(--sdir,1)))}
+.ceyo-paywall[dir=rtl] .paywall-yearly{--sdir:-1}
 .ceyo-paywall .paywall-close svg{width:20px;height:20px}
 
 /* Block wordmark: every letter sits on its own rounded tile. */
-.ceyo-paywall .paywall-mark{--tile:min(62px,calc((100vw - 64px) / 5.3));display:flex;flex-direction:column;align-items:center;gap:6px;margin:18px 0 22px}
+.ceyo-paywall .paywall-mark{--tile:min(60px,calc((100vw - 64px) / 5.3),6.1dvh);display:flex;flex-direction:column;align-items:center;gap:5px;margin:clamp(4px,1.4dvh,18px) 0 clamp(8px,1.8dvh,22px)}
 .ceyo-paywall .paywall-row{display:flex;gap:5px}
 .ceyo-paywall .paywall-row i{display:grid;place-items:center;width:var(--tile);height:var(--tile);border-radius:calc(var(--tile) * .16);font:normal 400 calc(var(--tile) * .66)/1 var(--pw-display);letter-spacing:0;transition:background-color .35s ease,color .35s ease}
 .ceyo-paywall .paywall-row-brand i{background:var(--subscription-ink);color:var(--subscription-bg)}
 .ceyo-paywall .paywall-row-tier i{background:var(--pw-tier);color:var(--pw-on-tier);animation:pw-pop .42s cubic-bezier(.2,.9,.3,1.3) both}
 @keyframes pw-pop{from{transform:translateY(10px) scale(.86);opacity:0}to{transform:none;opacity:1}}
 
-.ceyo-paywall .paywall-tagline{margin:0 auto 26px;max-width:22em;text-align:center;font-size:19px;line-height:1.4;font-weight:400;color:var(--subscription-ink);text-wrap:balance}
+.ceyo-paywall .paywall-tagline{margin:0 auto clamp(8px,2.1dvh,26px);max-width:22em;text-align:center;font-size:clamp(15px,2.3dvh,19px);line-height:1.4;font-weight:400;color:var(--subscription-ink);text-wrap:balance}
 
-.ceyo-paywall .paywall-tabs{display:flex;padding:5px;margin:0 0 18px;border-radius:999px;background:var(--subscription-surface)}
-.ceyo-paywall .paywall-tabs button{flex:1;height:44px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--subscription-muted);font:500 16px/1 var(--pw-body);cursor:pointer;transition:background .25s ease,color .25s ease,border-color .25s ease}
-.ceyo-paywall .paywall-tabs button[aria-selected=true]{background:var(--subscription-raised);border-color:var(--subscription-line);color:var(--subscription-ink)}
+/* iOS-style segmented control: one pill glides under the selected plan with a soft spring. */
+.ceyo-paywall .paywall-tabs{--dir:1;position:relative;display:grid;grid-template-columns:repeat(var(--n,3),1fr);padding:4px;margin:0 0 clamp(10px,1.8dvh,18px);border-radius:999px;background:var(--subscription-surface);isolation:isolate;flex:none}
+.ceyo-paywall[dir=rtl] .paywall-tabs{--dir:-1}
+.ceyo-paywall .paywall-tabs-pill{position:absolute;z-index:-1;top:4px;bottom:4px;inset-inline-start:4px;width:calc((100% - 8px) / var(--n,3));border-radius:999px;background:var(--subscription-raised);box-shadow:0 0 0 1px var(--subscription-line),0 3px 10px rgb(0 0 0 / 28%);transform:translateX(calc(var(--i,0) * 100% * var(--dir)));transition:transform .5s cubic-bezier(.32,.72,0,1)}
+.ceyo-paywall .paywall-tabs:has(button:active) .paywall-tabs-pill{scale:.96;transition:transform .5s cubic-bezier(.32,.72,0,1),scale .2s ease}
+.ceyo-paywall .paywall-tabs button{height:clamp(36px,5.2dvh,42px);border:0;border-radius:999px;background:transparent;color:var(--subscription-muted);font:500 15px/1 var(--pw-body);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:color .3s ease,transform .2s ease}
+.ceyo-paywall .paywall-tabs button:active{transform:scale(.95)}
+.ceyo-paywall .paywall-tabs button[aria-selected=true]{color:var(--subscription-ink)}
 
-.ceyo-paywall .paywall-card{display:flex;flex-direction:column;gap:18px;padding:24px 22px 22px;border-radius:32px;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
+.ceyo-paywall .paywall-card{display:flex;flex-direction:column;gap:clamp(10px,1.8dvh,18px);flex:none;padding:clamp(16px,2.6dvh,24px) 20px clamp(16px,2.4dvh,22px);border-radius:30px;touch-action:pan-y;overflow:hidden;background:var(--pw-tier);color:var(--pw-on-tier);transition:background-color .35s ease}
+.ceyo-paywall .paywall-card-body{display:flex;flex-direction:column;gap:clamp(10px,1.8dvh,16px);animation:pw-in-next .45s cubic-bezier(.32,.72,0,1) both}
+.ceyo-paywall .paywall-card-body[data-slide=prev]{animation-name:pw-in-prev}
+@keyframes pw-in-next{from{opacity:0;transform:translateX(calc(28px * var(--dir,1)))}to{opacity:1;transform:none}}
+@keyframes pw-in-prev{from{opacity:0;transform:translateX(calc(-28px * var(--dir,1)))}to{opacity:1;transform:none}}
+.ceyo-paywall[dir=rtl] .paywall-card-body{--dir:-1}
 .ceyo-paywall .paywall-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .ceyo-paywall .paywall-price{display:flex;align-items:baseline;gap:2px;margin:0;min-width:0}
-.ceyo-paywall .paywall-price strong{font-size:26px;line-height:1.1;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
+.ceyo-paywall .paywall-price strong{font-size:clamp(22px,3.2dvh,26px);line-height:1.1;font-weight:500;letter-spacing:-.01em;white-space:nowrap}
 .ceyo-paywall .paywall-price span{font-size:16px;color:var(--pw-on-tier-soft)}
-.ceyo-paywall .paywall-card-name{font:400 30px/1 var(--pw-display)}
+.ceyo-paywall .paywall-card-name{font:400 clamp(24px,3.6dvh,30px)/1 var(--pw-display)}
 
-.ceyo-paywall .paywall-interval{display:flex;padding:4px;border-radius:999px;background:var(--pw-on-tier-line)}
-.ceyo-paywall .paywall-interval button{flex:1;height:36px;border:0;border-radius:999px;background:transparent;color:var(--pw-on-tier-soft);font:500 13px/1 var(--pw-body);cursor:pointer;transition:background .2s ease,color .2s ease}
-.ceyo-paywall .paywall-interval button[aria-pressed=true]{background:var(--pw-on-tier);color:var(--pw-tier)}
+.ceyo-paywall .paywall-features{display:flex;flex-direction:column;gap:clamp(7px,1.4dvh,14px);margin:0;padding:0;list-style:none}
+.ceyo-paywall .paywall-features li{display:flex;align-items:center;gap:12px;font-size:clamp(14px,2.05dvh,16px);line-height:1.35;font-weight:400}
+.ceyo-paywall .paywall-ico{display:grid;place-items:center;flex:none;width:22px;height:22px;background:none}
+.ceyo-paywall .paywall-ico svg{width:21px;height:21px;stroke-width:2.1}
 
-.ceyo-paywall .paywall-features{display:flex;flex-direction:column;gap:14px;margin:4px 0 6px;padding:0;list-style:none}
-.ceyo-paywall .paywall-features li{display:flex;align-items:center;gap:12px;font-size:16px;line-height:1.35;font-weight:400}
-.ceyo-paywall .paywall-ico{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:10px;background:var(--pw-on-tier-line)}
-.ceyo-paywall .paywall-ico svg{width:17px;height:17px;stroke-width:2.2}
-
-.ceyo-paywall .paywall-cta{width:100%;min-height:56px;border:0;border-radius:999px;background:var(--pw-on-tier);color:var(--pw-tier);font:500 17px/1.2 var(--pw-body);cursor:pointer;transition:transform .15s ease,opacity .2s ease,color .35s ease}
+.ceyo-paywall .paywall-cta{width:100%;min-height:clamp(46px,6.6dvh,56px);border:0;border-radius:999px;background:var(--pw-on-tier);color:var(--pw-tier);font:500 17px/1.2 var(--pw-body);cursor:pointer;transition:transform .15s ease,opacity .2s ease,color .35s ease}
 .ceyo-paywall .paywall-cta:active{transform:scale(.98)}
 .ceyo-paywall .paywall-cta:disabled{opacity:.45;cursor:default;transform:none}
 
-.ceyo-paywall .paywall-foot{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 4px 0;text-align:center}
-.ceyo-paywall .paywall-fine{margin:0;font-size:14px;line-height:1.5;color:var(--subscription-muted)}
-.ceyo-paywall .paywall-link{border:0;background:transparent;padding:6px 10px;color:var(--subscription-ink);font:500 14px/1.3 var(--pw-body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ceyo-paywall .paywall-foot{display:flex;flex-direction:column;align-items:center;gap:4px;padding:clamp(6px,1.5dvh,18px) 4px 0;margin-bottom:auto;text-align:center;flex:none}
+.ceyo-paywall .paywall-fine{margin:0;font-size:13px;line-height:1.5;color:var(--subscription-muted)}
+.ceyo-paywall .paywall-link{border:0;background:transparent;padding:4px 10px;color:var(--subscription-ink);font:500 14px/1.3 var(--pw-body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .ceyo-paywall .paywall-link:disabled{opacity:.5}
 .ceyo-paywall .paywall-inline{padding:0;font-size:inherit}
-.ceyo-paywall .paywall-legal{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px;font-size:14px;color:var(--subscription-muted)}
+.ceyo-paywall .paywall-legal{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:2px;font-size:13px;color:var(--subscription-muted)}
 .ceyo-paywall .paywall-legal a{color:var(--subscription-muted);text-decoration:none}
 .ceyo-paywall .paywall-legal a:hover{color:var(--subscription-ink)}
 
 @media(min-width:768px){
   .ceyo-paywall .paywall-scroll{max-width:520px;padding-top:28px}
-  .ceyo-paywall .paywall-mark{--tile:72px}
+  .ceyo-paywall .paywall-mark{--tile:min(72px,7dvh)}
   .ceyo-paywall .paywall-tagline{font-size:21px}
 }
-@media(prefers-reduced-motion:reduce){.ceyo-paywall .paywall-row-tier i{animation:none}}
+@media(prefers-reduced-motion:reduce){.ceyo-paywall .paywall-row-tier i,.ceyo-paywall .paywall-card-body{animation:none}.ceyo-paywall .paywall-tabs-pill{transition:none}}
+/* Short phones (e.g. iPhone SE): tighten so the page still fits without scrolling. */
+@media(max-height:700px){
+  .ceyo-paywall .paywall-mark{--tile:min(52px,calc((100vw - 64px) / 5.3),5.6dvh);margin:2px 0 8px}
+  .ceyo-paywall .paywall-tagline{font-size:14px;margin-bottom:8px}
+  .ceyo-paywall .paywall-features{gap:6px}
+  .ceyo-paywall .paywall-features li{font-size:14px}
+  .ceyo-paywall .paywall-card{padding:14px 18px;gap:10px}
+  .ceyo-paywall .paywall-fine{font-size:12px}
+}

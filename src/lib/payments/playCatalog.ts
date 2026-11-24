@@ -7,7 +7,8 @@ export const PLAY_FIRST_MONTH_OFFER = {
 
 export const PLAY_CATALOG = ([
   ["plus", "monthly", "Ceyo Plus"], ["plus", "yearly", "Ceyo Plus Annual"],
-  ["pro", "monthly", "Ceyo Pro"], ["ultra", "monthly", "Ceyo Ultra"],
+  ["pro", "monthly", "Ceyo Pro"], ["pro", "yearly", "Ceyo Pro Annual"],
+  ["ultra", "monthly", "Ceyo Ultra"], ["ultra", "yearly", "Ceyo Ultra Annual"],
 ] as const).map(([tier, interval, title]) => ({
   tier: tier as Tier, interval: interval as BillingInterval, title,
   productId: playProductId(tier, interval), basePlanId: interval,

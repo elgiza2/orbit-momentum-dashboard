@@ -1,11 +1,11 @@
 /** Ceyo settings — compact dark sheets matching the supplied mobile references. */
-import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
 import {
   ArrowUpRight, Camera, Check, ChevronLeft, ChevronRight, ChevronsUpDown, Contrast, Copy, CreditCard,
-  KeyRound, Moon, Bot, Brain, Zap, Image as ImageIcon, Workflow, Code2, Film, Rocket, Ticket, Gauge, Sparkles, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
+  KeyRound, Moon, Bot, Monitor, Users, Globe, Plug, CalendarClock, Phone as PhoneIcon, PhoneIncoming, PhoneOutgoing, Plus, Search, Smartphone, Star, Sun, Trash2, User, Vault, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/legacyClient";
 import { useUsage } from "@/hooks/useUsage";
@@ -34,6 +34,7 @@ import { blockedMessage, usageMessageText } from "@/lib/ceyo/usage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isPlayApp } from "@/lib/native/playBilling";
 import { formatLocalPrice } from "@/lib/payments/localPrices";
+import { priceOf } from "@/lib/payments/plans";
 import { readSetting, saveSetting } from "./settingsStorage";
 import { updateMyProfile, usernameAvailable, useMyProfile } from "@/lib/profile/myProfile";
 import { toAvatar } from "@/lib/profile/avatar";
@@ -393,28 +394,25 @@ function Storage({ nav }: { nav: Nav }) {
 }
 
 const PLANS = [
-  { id: "plus", name: "Plus", price: 20, yearly: 199, mult: "4x", base: "", groups: [
-    { title: "Included", items: ["Ceyo Bot", "Newest Ceyo models", "Faster chat replies", "Create images and videos with AI", "Cloud agents and automation", "Code hosting and AI code reviews"] },
-  ] },
-  { id: "pro", name: "Pro", price: 60, yearly: 0, mult: "15x", base: "Plus", groups: [
-    { title: "Included", items: ["Create 1080p videos", "Priority model access at peak times", "Faster replies and generations"] },
-  ] },
-  { id: "ultra", name: "Ultra", price: 120, yearly: 0, mult: "50x", base: "Pro", groups: [
-    { title: "Included", items: ["Most capable chat models", "Early access to new products and models", "Fastest replies and generations"] },
-  ] },
+  { id: "plus", name: "Plus" },
+  { id: "pro", name: "Pro" },
+  { id: "ultra", name: "Ultra" },
 ] as const;
 
 const PLAN_TAGLINES: Record<(typeof PLANS)[number]["id"], { en: string; ar: string }> = {
   plus: { en: "Your own team of bots, each with its own computer.", ar: "فريق بوتات خاص بيك، كل بوت بكمبيوتر خاص بيه." },
-  pro: { en: "Hand over whole projects, with more power and higher limits.", ar: "سلّم مشاريع كاملة، بقوة أكبر وحدود أعلى." },
-  ultra: { en: "Delegate everything, with the most capable models and 50x usage.", ar: "سيب كل حاجة عليهم، بأقوى النماذج واستخدام أكتر 50 مرة." },
+  pro: { en: "Hand over whole projects and let your bots finish them.", ar: "سلّم مشاريع كاملة وسيب البوتات تخلّصها." },
+  ultra: { en: "Delegate everything to a team that keeps working.", ar: "سيب كل حاجة على فريق بيفضل شغال." },
 };
-const BENEFIT_ICONS: Record<string, ReactNode> = {
-  "Ceyo Bot": <Bot />, "Newest Ceyo models": <Brain />, "Faster chat replies": <Zap />,
-  "Create images and videos with AI": <ImageIcon />, "Cloud agents and automation": <Workflow />, "Code hosting and AI code reviews": <Code2 />,
-  "Create 1080p videos": <Film />, "Priority model access at peak times": <Rocket />, "Faster replies and generations": <Zap />,
-  "Most capable chat models": <Brain />, "Early access to new products and models": <Ticket />, "Fastest replies and generations": <Zap />,
-};
+/** Real Ceyo capabilities (same as the landing page); no invented per-plan limits. */
+const PLAN_FEATURES: { icon: ReactNode; en: string; ar: string }[] = [
+  { icon: <Monitor />, en: "Every bot has its own computer", ar: "كل بوت ليه كمبيوتر خاص بيه" },
+  { icon: <Users />, en: "Bot groups that finish whole projects", ar: "مجموعات بوتات بتخلّص مشاريع كاملة" },
+  { icon: <Globe />, en: "Browses the web for you", ar: "بيتصفح النت بدالك" },
+  { icon: <Plug />, en: "Connects to 1,000+ apps", ar: "بيتربط بأكتر من 1000 تطبيق" },
+  { icon: <PhoneIcon />, en: "Phone and video calls", ar: "مكالمات تليفون وفيديو" },
+  { icon: <CalendarClock />, en: "Routines that run while you sleep", ar: "مهام متكررة بتشتغل وانت نايم" },
+];
 
 type CardBilling = { tier: string; interval: string; status: string; nextChargeAt: string | null; cardLast4: string | null } | null;
 /** Web trial's automatic charge: when it happens, which card, and a cancel button. */
@@ -446,34 +444,33 @@ function Plans({ nav }: { nav: Nav }) {
     void queryClient.invalidateQueries({ queryKey: ["card-billing"] });
   };
   const [tab, setTab] = useState(0);
-  const [yearly, setYearly] = useState(false);
+  const [slide, setSlide] = useState<"next" | "prev">("next");
   const [paying, setPaying] = useState(false);
+  const [wantYearly, setWantYearly] = useState(false);
+  const swipeX = useRef<number | null>(null);
   useEffect(() => { const saved = readPageState(getAuthState().userId, "/settings/plans"); if (saved?.tab !== undefined) setTab(saved.tab); }, []);
   const chooseTab = (value: number) => {
-    setTab(value); setYearly(false); setPaying(false);
+    if (value === tab || value < 0 || value >= PLANS.length) return;
+    setSlide(value > tab ? "next" : "prev"); setTab(value); setPaying(false);
     const owner = getAuthState().userId;
     writePageState(owner, "/settings/plans", { ...readPageState(owner, "/settings/plans"), tab: value });
   };
   const p = PLANS[tab];
-  const localPrices = useLocalPlanPrices(p.id, p.yearly > 0);
+  // One switch for every plan; a plan without a yearly price stays monthly.
+  const hasYearly = priceOf(p.id, "yearly") !== null;
+  const yearly = wantYearly && hasYearly;
+  const interval = yearly ? "yearly" : "monthly";
+  const bestSaving = Math.max(0, ...PLANS.map((x) => {
+    const m = priceOf(x.id, "monthly"); const y = priceOf(x.id, "yearly");
+    return m && y ? Math.round((1 - y / (m * 12)) * 100) : 0;
+  }));
+  const localPrices = useLocalPlanPrices(p.id, hasYearly);
   const current = plan?.toLowerCase() === p.id;
   const ar = useUserLang().startsWith("ar");
-  const benefitsAr: Record<string, string> = {
-    "Ceyo Bot": "بوت Ceyo", "Newest Ceyo models": "أحدث نماذج Ceyo", "Faster chat replies": "استجابات دردشة أسرع",
-    "Create images and videos with AI": "إنشاء صور وفيديو بالذكاء الاصطناعي", "Cloud agents and automation": "وكلاء السحابة والأتمتة",
-    "Code hosting and AI code reviews": "استضافة الكود ومراجعته بالذكاء الاصطناعي", "Create 1080p videos": "إنشاء مقاطع فيديو 1080p",
-    "Priority model access at peak times": "أولوية الوصول إلى النماذج في أوقات الذروة", "Faster replies and generations": "استجابات وتوليدات أسرع",
-    "Most capable chat models": "أقوى نماذج الدردشة", "Early access to new products and models": "الوصول المبكر إلى المنتجات والنماذج", "Fastest replies and generations": "أسرع الردود والتوليدات",
-  };
   const fmt = (v: number | null) => (v !== null && localPrices.currency ? formatLocalPrice(v, localPrices.currency, ar ? "ar" : "en") : "…");
   const shownPrice = fmt(yearly ? localPrices.yearly : localPrices.monthly);
   const per = yearly ? (ar ? "/سنة" : "/yr") : (ar ? "/شهر" : "/mo");
   const tagline = PLAN_TAGLINES[p.id][ar ? "ar" : "en"];
-  const features: { icon: ReactNode; text: string }[] = [
-    ...(p.base ? [{ icon: <Check />, text: ar ? `كل اللي في ${p.base}` : `Everything in ${p.base}` }] : []),
-    { icon: <Gauge />, text: ar ? `استخدام أكتر ${p.mult}` : `${p.mult} more usage` },
-    ...p.groups.flatMap((g) => g.items).map((it) => ({ icon: BENEFIT_ICONS[it] ?? <Sparkles />, text: ar ? benefitsAr[it] || it : it })),
-  ];
   useEffect(() => {
     // The paywall's display face loads only when this page opens.
     if (document.getElementById("ceyo-paywall-font")) return;
@@ -487,27 +484,37 @@ function Plans({ nav }: { nav: Nav }) {
       <div className="paywall-scroll">
         <header className="paywall-top">
           <button type="button" className="paywall-close" aria-label={ar ? "إغلاق" : "Close"} onClick={() => { if (window.history.state?.idx > 0) navigate(-1); else nav("/"); }}><X /></button>
+          <button type="button" role="switch" aria-checked={wantYearly} className="paywall-yearly" onClick={() => setWantYearly((v) => !v)}>
+            <span>{ar ? "سنوي" : "Yearly"}{bestSaving > 0 && <em>{ar ? `وفّر ${bestSaving}%` : `Save ${bestSaving}%`}</em>}</span>
+            <i aria-hidden />
+          </button>
         </header>
         <h1 className="paywall-mark" aria-label={`Ceyo ${p.name}`} dir="ltr">
           <span className="paywall-row paywall-row-brand" aria-hidden>{"CEYO".split("").map((c, i) => <i key={i}>{c}</i>)}</span>
           <span className="paywall-row paywall-row-tier" aria-hidden key={p.id}>{p.name.toUpperCase().split("").map((c, i) => <i key={i} style={{ animationDelay: `${i * 40}ms` }}>{c}</i>)}</span>
         </h1>
         <p className="paywall-tagline">{tagline}</p>
-        <div className="paywall-tabs" role="tablist" aria-label="Plans">
+        <div className="paywall-tabs" role="tablist" aria-label="Plans" style={{ "--i": tab, "--n": PLANS.length } as CSSProperties}>
+          <span className="paywall-tabs-pill" aria-hidden />
           {PLANS.map((x, i) => <button type="button" key={x.id} role="tab" aria-selected={i === tab} aria-controls="subscription-details" onClick={() => chooseTab(i)}>{x.name}</button>)}
         </div>
-        <section id="subscription-details" className="paywall-card" role="tabpanel" aria-label={p.name}>
+        <section
+          id="subscription-details" className="paywall-card" role="tabpanel" aria-label={p.name}
+          onPointerDown={(e) => { swipeX.current = e.clientX; }}
+          onPointerUp={(e) => {
+            if (swipeX.current === null) return;
+            const dx = (e.clientX - swipeX.current) * (ar ? -1 : 1); swipeX.current = null;
+            if (Math.abs(dx) > 50) chooseTab(tab + (dx < 0 ? 1 : -1));
+          }}
+          onPointerCancel={() => { swipeX.current = null; }}
+        >
+          <div className="paywall-card-body" key={p.id} data-slide={slide}>
           <div className="paywall-card-head">
             <p className="paywall-price" dir="auto"><strong>{shownPrice}</strong><span>{per}</span></p>
             <span className="paywall-card-name">{p.name}</span>
           </div>
-          {p.yearly > 0 && (
-            <div className="paywall-interval" role="group" aria-label="Billing interval">
-              <button type="button" aria-pressed={!yearly} onClick={() => setYearly(false)}>{ar ? "شهري" : "Monthly"}</button>
-              <button type="button" aria-pressed={yearly} onClick={() => setYearly(true)}>{ar ? "سنوي · وفر 17%" : "Yearly · Save 17%"}</button>
-            </div>
-          )}
-          <ul className="paywall-features">{features.map((f) => <li key={f.text}><span className="paywall-ico">{f.icon}</span><span>{f.text}</span></li>)}</ul>
+          <ul className="paywall-features">{PLAN_FEATURES.map((f) => <li key={f.en}><span className="paywall-ico">{f.icon}</span><span>{ar ? f.ar : f.en}</span></li>)}</ul>
+          </div>
           {canTrial && !current ? (
             <button type="button" className="paywall-cta" disabled={!localPrices.ready} onClick={() => (web ? setTrialPaying(true) : setPaying(true))}>
               <span>{ar ? "ابدأ ٣ أيام مجانًا" : "Start 3 days free"}</span>
@@ -524,10 +531,11 @@ function Plans({ nav }: { nav: Nav }) {
             {canTrial && !current
               ? (ar ? `مجانًا ٣ أيام، بعدها ${shownPrice}${per}. الغِ في أي وقت.` : `Free for 3 days, then ${shownPrice}${per}. Cancel anytime.`)
               : (ar ? `${shownPrice}${per}. الغِ في أي وقت.` : `${shownPrice}${per}. Cancel anytime.`)}
+            {wantYearly && !hasYearly && (ar ? ` باقة ${p.name} شهري بس حاليًا.` : ` ${p.name} is monthly only for now.`)}
           </p>
           {canTrial && !current && web && <button type="button" className="paywall-link" disabled={!localPrices.ready} onClick={() => setPaying(true)}>{ar ? "اشترك دلوقتي من غير تجربة" : "Subscribe now without trial"}</button>}
           {autoCharge && <p className="paywall-fine" role="status">{ar ? `خصم تلقائي ${autoCharge.nextChargeAt ? `يوم ${new Date(autoCharge.nextChargeAt).toLocaleDateString("ar")}` : ""}${autoCharge.cardLast4 ? ` من البطاقة المنتهية بـ ${autoCharge.cardLast4}` : ""}. ` : `Automatic charge${autoCharge.nextChargeAt ? ` on ${new Date(autoCharge.nextChargeAt).toLocaleDateString()}` : ""}${autoCharge.cardLast4 ? ` to the card ending ${autoCharge.cardLast4}` : ""}. `}<button type="button" className="paywall-link paywall-inline" onClick={() => void cancelAutoCharge()}>{ar ? "إلغاء الخصم التلقائي" : "Cancel automatic charge"}</button></p>}
-          {localPrices.approximate && localPrices.ready && <p className="paywall-fine">{ar ? "سعر محلي تقريبي؛ المبلغ النهائي يظهر وقت الدفع." : "Approximate local price; final amount shown at checkout."}</p>}
+          {localPrices.approximate && localPrices.ready && <p className="paywall-fine">{ar ? "السعر المحلي تقريبي، والنهائي بيظهر وقت الدفع." : "Approximate price; final amount at checkout."}</p>}
           <nav className="paywall-legal" aria-label={ar ? "روابط قانونية" : "Legal"}>
             <a href="/privacy">{ar ? "الخصوصية" : "Privacy"}</a><span aria-hidden>·</span>
             <a href="/terms">{ar ? "الشروط" : "Terms"}</a><span aria-hidden>·</span>
@@ -535,8 +543,8 @@ function Plans({ nav }: { nav: Nav }) {
           </nav>
         </footer>
       </div>
-      {paying && <Suspense fallback={null}><CheckoutSheet tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => setPaying(false)} /></Suspense>}
-      {trialPaying && <Suspense fallback={null}><CheckoutSheet trial tier={p.id} name={p.name} interval={yearly ? "yearly" : "monthly"} onClose={() => { setTrialPaying(false); void usage.refetch(); void cardBilling.refetch(); }} /></Suspense>}
+      {paying && <Suspense fallback={null}><CheckoutSheet tier={p.id} name={p.name} interval={interval} onClose={() => setPaying(false)} /></Suspense>}
+      {trialPaying && <Suspense fallback={null}><CheckoutSheet trial tier={p.id} name={p.name} interval={interval} onClose={() => { setTrialPaying(false); void usage.refetch(); void cardBilling.refetch(); }} /></Suspense>}
     </div>
   );
 }

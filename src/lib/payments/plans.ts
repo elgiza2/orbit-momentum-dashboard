@@ -4,8 +4,8 @@ export type BillingInterval = "monthly" | "yearly";
 
 export const PLAN_PRICES: Record<Tier, Partial<Record<BillingInterval, number>>> = {
   plus: { monthly: 20, yearly: 199 },
-  pro: { monthly: 60 },
-  ultra: { monthly: 120 },
+  pro: { monthly: 60, yearly: 599 },
+  ultra: { monthly: 120, yearly: 1199 },
 };
 
 /** Price for a tier/interval, or null when that combination is not sold. */

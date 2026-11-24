@@ -144,7 +144,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Planes para tu próximo proyecto",
    "plansBody": "Cada plan comienza con una prueba gratuita de 3 días: hasta 1,000,000 tokens al día. Vincula una tarjeta para empezar; solo se te cobrará el plan cuando la prueba finalice, a menos que canceles.",
-   "note": "Precios en USD. La moneda local y los métodos de pago se muestran al finalizar la compra. La facturación anual solo está disponible para Plus.",
+   "note": "Precios en USD. La moneda local y los métodos de pago se muestran al finalizar la compra. Todos los planes también están disponibles con pago anual.",
    "month": "/mes",
    "yearly": "o ${p}/año, facturación anual",
    "monthly": "Facturación mensual",
@@ -329,7 +329,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Тарифы для вашего следующего проекта",
    "plansBody": "Каждый тариф начинается с 3-дневной бесплатной пробной версии: до 1,000,000 токенов в день. Привяжите карту, чтобы начать. Оплата за тариф списывается только после окончания пробного периода, если вы не отмените его.",
-   "note": "Цены указаны в USD. Валюта и способы оплаты будут показаны на этапе оформления. Годовая оплата доступна только для тарифа Plus.",
+   "note": "Цены указаны в USD. Валюта и способы оплаты будут показаны на этапе оформления. Все тарифы также доступны с годовой оплатой.",
    "month": "/месяц",
    "yearly": "или ${p}/год, с годовой оплатой",
    "monthly": "Ежемесячная оплата",
@@ -514,7 +514,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Planos para o seu próximo projeto",
    "plansBody": "Todo plano começa com um teste grátis de 3 dias: até 1,000,000 tokens por dia. Associe um cartão para começar; seu plano é cobrado apenas quando o teste termina, a menos que você cancele.",
-   "note": "Preços em USD. A moeda local e os métodos de pagamento são exibidos no checkout. A cobrança anual está disponível apenas para o Plus.",
+   "note": "Preços em USD. A moeda local e os métodos de pagamento são exibidos no checkout. Todos os planos também estão disponíveis com cobrança anual.",
    "month": "/mês",
    "yearly": "ou ${p}/ano, cobrado anualmente",
    "monthly": "Cobrado mensalmente",
@@ -699,7 +699,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Forfaits pour votre prochain projet",
    "plansBody": "Chaque forfait commence par un essai gratuit de 3 jours : jusqu'à 1,000,000 jetons par jour. Associez une carte pour démarrer ; votre forfait est facturé uniquement à la fin de l'essai, sauf si vous annulez.",
-   "note": "Prix en USD. La devise locale et les méthodes de paiement sont affichées lors du paiement. La facturation annuelle est disponible uniquement pour Plus.",
+   "note": "Prix en USD. La devise locale et les méthodes de paiement sont affichées lors du paiement. Tous les forfaits sont aussi disponibles en facturation annuelle.",
    "month": "/mois",
    "yearly": "ou ${p}/an, facturé annuellement",
    "monthly": "Facturation mensuelle",
@@ -884,7 +884,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "为你的下一个项目选择套餐",
    "plansBody": "每个套餐都以 3 天免费试用开始：每天最多 1,000,000 个词元。绑定银行卡即可开始；除非你取消，否则只在试用期结束后扣费。",
-   "note": "价格以美元计。结算时会显示当地货币和支付方式。仅 Plus 版提供年付。",
+   "note": "价格以美元计。结算时会显示当地货币和支付方式。所有方案均提供年付。",
    "month": "/月",
    "yearly": "或 ${p}/年，按年计费",
    "monthly": "按月计费",
@@ -1069,7 +1069,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "आपके अगले प्रोजेक्ट के लिए प्लान",
    "plansBody": "हर प्लान 3-दिन के निःशुल्क ट्रायल से शुरू होता है: प्रतिदिन 1,000,000 टोकन तक। शुरू करने के लिए कार्ड जोड़ें; ट्रायल खत्म होने पर ही, यदि आप रद्द नहीं करते, आपका प्लान बिल होगा।",
-   "note": "भारू USD में हैं। स्थानीय मुद्रा और भुगतान के तरीके cheque पर दिखेंगे। वार्षिक बिलिंग केवल Plus के लिए उपलब्ध है।",
+   "note": "भारू USD में हैं। स्थानीय मुद्रा और भुगतान के तरीके cheque पर दिखेंगे। सभी प्लान वार्षिक बिलिंग के साथ भी उपलब्ध हैं।",
    "month": "/माह",
    "yearly": "या ${p}/वर्ष, वार्षिक बिलिंग",
    "monthly": "मासिक बिलिंग",
@@ -1254,7 +1254,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Bir sonraki projen için planlar",
    "plansBody": "Her plan 3 günlük ücretsiz deneme ile başlar: günde en fazla 1,000,000 token. Başlamak için kart bağla; planın yalnızca deneme bittiğinde, iptal etmediysen ücretlendirilir.",
-   "note": "Fiyatlar USD cinsindendir. Yerel para birimi ve ödeme yöntemleri ödeme sırasında gösterilir. Yıllık faturalandırma yalnızca Plus için kullanılabilir.",
+   "note": "Fiyatlar USD cinsindendir. Yerel para birimi ve ödeme yöntemleri ödeme sırasında gösterilir. Tüm planlar yıllık faturalandırmayla da kullanılabilir.",
    "month": "/ay",
    "yearly": "veya ${p}/yıl, yıllık faturalandırılır",
    "monthly": "Aylık faturalandırılır",
@@ -1439,7 +1439,7 @@ export const LANDING_I18N: Record<string, { copy: LandingCopy; extra: Record<str
   "extra": {
    "plansTitle": "Preispakete für dein nächstes Projekt",
    "plansBody": "Jedes Preispaket beginnt mit einer 3-Tage-Testphase: bis zu 1,000,000 Token pro Tag. Verbinde eine Karte, um zu starten. Dein Abonnement wird nur belastet, wenn die Testphase endet – es sei denn, du stornierst.",
-   "note": "Preise in USD. Die lokale Währung und Zahlungsmethoden werden beim Checkout angezeigt. Jahresabrechnung ist nur für Plus verfügbar.",
+   "note": "Preise in USD. Die lokale Währung und Zahlungsmethoden werden beim Checkout angezeigt. Alle Pläne gibt es auch mit Jahresabrechnung.",
    "month": "/Monat",
    "yearly": "oder ${p}/Jahr, jährlich abgerechnet",
    "monthly": "Monatliche Abrechnung",
