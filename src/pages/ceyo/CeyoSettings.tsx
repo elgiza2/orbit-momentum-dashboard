@@ -28,6 +28,8 @@ import { useUserLang, setUserLang, detectLang } from "@/lib/authI18n";
 import { normalizeAppLanguage } from "@/lib/i18n/bundledLocales";
 import "@/styles/subscriptions.css";
 import "@/styles/plans-paywall.css";
+import { HubPromoCards } from "@/pages/agent/hub/HubPromoCards";
+import "@/styles/hub-promo.css";
 import "@/styles/usage-page.css";
 import { getAuthState } from "@/lib/authStore";
 import { readPageState, writePageState } from "@/lib/pageStateCache";
@@ -186,6 +188,7 @@ function Main({ nav }: { nav: Nav }) {
   const [language, setLanguage] = useState("System");
   const [permissions, setPermissions] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
   const usage = useUsage();
+  const ar = useUserLang().startsWith("ar");
   const tz = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
 
   useEffect(() => {
@@ -212,6 +215,7 @@ function Main({ nav }: { nav: Nav }) {
         <Row label="Storage" sub="Files, memories and cache" onClick={() => nav("/settings/storage")} />
         <Row label="Vault" sub="Saved labels and contact info on this device" onClick={() => nav("/settings/vault")} />
       </Group>
+      {!usage.data?.isPaid && <HubPromoCards ar={ar} onOpen={(to) => nav(to)} />}
       <Group><Row label="Connect apps" sub="Search plugins" onClick={() => nav("/settings/apps")} /></Group>
       <Group title="Agent">
         <Row label="Permissions" sub={permissionSummary(permissions)} onClick={() => nav("/settings/permissions")} />

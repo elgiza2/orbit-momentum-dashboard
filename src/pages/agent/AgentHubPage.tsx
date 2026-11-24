@@ -33,9 +33,7 @@ import { cachedOwner, readCache, writeCache } from "@/lib/offlineCache";
 import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/client";
 import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/store";
 import { promptUpgrade } from "@/lib/upgradeMoment";
-import { isPaidUser } from "@/lib/subscriptionGating";
 import { HubChat } from "./hub/HubChat";
-import { HubPromoCards } from "./hub/HubPromoCards";
 import { WelcomeTour } from "./hub/WelcomeTour";
 import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
@@ -214,8 +212,6 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
     }).catch((error) => { if (active) toast.error(error instanceof Error ? error.message : "Could not open your chat"); });
     return () => { active = false; };
   }, [demo, chatTarget?.kind, chatTarget?.id, activeAgent?.id]);
-  const paid = isPaidUser(ws.tier);
-
   const go = useCallback((next: Record<string, string>, replace = false) => {
     setPlusOpen(false);
     setAppsOpen(false);
@@ -394,7 +390,6 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
 
       {!demo && <WelcomeTour ar={ar} />}
       <div className="hub-home-scroll">
-        {!demo && ws.ready && !paid && <HubPromoCards ar={ar} onOpen={(to) => nav(to)} />}
         {primary ? (
           <button type="button" className="hub-primary-button" onClick={() => openChat("bot", primary.id)}>
             <span className="hub-primary-character"><BotAvatar agent={primary} size={104} state="idle" /><i className="hub-primary-star"><Star size={13} fill="currentColor" strokeWidth={0} /></i></span>

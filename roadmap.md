@@ -1,6 +1,7 @@
-## Home promo cards — 2026-11-24
-- [x] Bright PRO card at the top of home for free accounts, opens the plans page.
-- [x] Pink WIN card next to it (shows "coming soon" for now).
+## PRO/WIN promo cards — 2026-11-24
+- [x] Bright PRO card for free accounts, opens the plans page; pink WIN card next to it ("coming soon").
+- [x] Cards moved out of the home screen into Settings (`/settings`), shown only to non-subscribed accounts.
+- [x] Compact strip: both cards side by side, 58px tall.
 - [ ] Decide what WIN Pro does (owner: later).
 
 ## Plans page redesign — 2026-11-24
