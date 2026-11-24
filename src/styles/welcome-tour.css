@@ -71,3 +71,27 @@
 .wt-next{position:relative;z-index:2;border:0;border-radius:999px;background:#fff;color:#000;font-size:17px;font-weight:700;padding:17px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .2s var(--ease)}
 .wt-next:active{transform:scale(.97)}
 .wt-free{position:relative;z-index:2;border:0;background:none;color:#fff9;font-size:14px;padding:12px 0 0}
+
+/* slide 2 v2 */
+.wt-msg.me{background:var(--c);color:#0b0b0c;font-weight:600;font-size:17px}
+.wt-ai span{display:inline;opacity:0;animation:wt-word .35s ease forwards}
+@keyframes wt-word{to{opacity:1}}
+.wt-ai{font-size:18px;font-weight:500}
+.wt-job{background:#121214;border:0;border-radius:26px;padding:18px 20px;position:relative;overflow:hidden;animation:wt-card .6s var(--ease) both}
+@keyframes wt-card{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.wt-job p{font-size:17px;font-weight:600;color:#fff}
+.wt-badge{background:color-mix(in oklab,var(--c) 18%,transparent);color:var(--c)}
+.wt-dot{background:var(--c)}
+.wt-bar{margin-top:16px;height:6px;border-radius:6px;background:#ffffff14;overflow:hidden}
+.wt-bar i{display:block;height:100%;width:100%;background:var(--c);border-radius:6px;transform-origin:left;animation:wt-fill 2.4s var(--ease) .3s both}
+[dir=rtl] .wt-bar i{transform-origin:right}
+@keyframes wt-fill{from{transform:scaleX(0)}}
+/* slide 3 gold */
+.wt-head-pro .wt-brand span{background:linear-gradient(100deg,#b8862b 0%,#f7dc8a 25%,#fff6d6 40%,#d9a441 55%,#8a5f16 75%,#f7dc8a 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wt-gold 3.2s linear infinite}
+@keyframes wt-gold{to{background-position:-250% 0}}
+.wt-limited{display:inline-flex;align-items:center;gap:8px;margin-bottom:14px;padding:7px 14px;border-radius:999px;border:1px solid #e9c46a66;background:#e9c46a14;color:#f3d58a;font-size:13px;font-weight:600}
+.wt-limited i{width:7px;height:7px;border-radius:50%;background:#f3d58a;animation:wt-blink 1.4s infinite}
+.wt-procard{background:linear-gradient(135deg,#f9e29a,#d9a441 55%,#b07a22);position:relative;overflow:hidden;box-shadow:0 20px 60px -20px #d9a44199}
+.wt-procard::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(100deg,transparent,#fff8,transparent);transform:skewX(-20deg);animation:wt-sweep 3s ease-in-out 1s infinite;pointer-events:none}
+@keyframes wt-sweep{0%{left:-60%}45%,100%{left:130%}}
+.wt-procard>*{position:relative;z-index:1}

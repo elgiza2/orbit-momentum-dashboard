@@ -88,20 +88,21 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
             <div className="wt-head">
               <div className="wt-brand">CEYO</div>
               <h2>{t("مش بوت دردشة. شريك بيشتغل بدالك.", "Not a chatbot. A partner that does the work.")}</h2>
-              <div className="wt-hint"><span className="wt-tap" />{t("اختار مهمة وشوف Ceyo بينفذها", "Pick a job and watch Ceyo run it")}</div>
+              <div className="wt-hint">{t("اختار مهمة وشوف Ceyo بينفذها", "Pick a job and watch Ceyo run it")}</div>
             </div>
           </>
         )}
 
         {step === 1 && (
           <>
-            <div className="wt-chat" key={pick}>
+            <div className="wt-chat" key={pick} style={{ ["--c" as string]: task.c }}>
               <div className="wt-msg me">{ar ? task.ar : task.en}</div>
-              {run === 0 ? <div className="wt-typing"><i /><i /><i /></div> : <p className="wt-ai">{ar ? r.reply.ar : r.reply.en}</p>}
+              {run === 0 ? <div className="wt-typing"><i /><i /><i /></div> : <p className="wt-ai">{(ar ? r.reply.ar : r.reply.en).split(" ").map((w, i) => <span key={i} style={{ animationDelay: `${i * 0.04}s` }}>{w} </span>)}</p>}
               {run > 1 && (
                 <div className="wt-job">
                   <span className="wt-badge"><span className="wt-dot" />{ar ? r.badge.ar : r.badge.en}</span>
                   <p>{ar ? r.card.ar : r.card.en}</p>
+                  <div className="wt-bar"><i /></div>
                 </div>
               )}
             </div>
@@ -115,6 +116,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         {step === 2 && (
           <>
             <div className="wt-head wt-head-pro">
+              <span className="wt-limited"><i />{t("متاح لعدد محدود من المستخدمين فقط", "Available to a limited number of users only")}</span>
               <div className="wt-brand">CEYO <span>PRO</span></div>
               <p>{t("سلّم شغلك وحياتك لعقل بيشتغل من غير حدود.", "Hand your work and life to a mind with no limits.")}</p>
             </div>
