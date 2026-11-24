@@ -1,5 +1,6 @@
 /** Ceyo settings — compact dark sheets matching the supplied mobile references. */
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { loadPaywallFont } from "@/lib/paywallFont";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { askConfirm } from "@/components/common/CeyoConfirm";
@@ -474,14 +475,8 @@ function Plans({ nav }: { nav: Nav }) {
   const shownPrice = fmt(yearly ? localPrices.yearly : localPrices.monthly);
   const per = yearly ? (ar ? "/سنة" : "/yr") : (ar ? "/شهر" : "/mo");
   const tagline = PLAN_TAGLINES[p.id][ar ? "ar" : "en"];
-  useEffect(() => {
-    // The paywall's display face loads only when this page opens.
-    if (document.getElementById("ceyo-paywall-font")) return;
-    const l = document.createElement("link");
-    l.id = "ceyo-paywall-font"; l.rel = "stylesheet";
-    l.href = "https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Readex+Pro:wght@400;500;600&display=swap";
-    document.head.appendChild(l);
-  }, []);
+  // The paywall's display face loads only when this page opens.
+  useEffect(() => { loadPaywallFont(); }, []);
   return (
     <div className="agent-hub ceyo-page subscription-page ceyo-paywall" data-tier={p.id} dir={ar ? "rtl" : "ltr"}>
       <div className="paywall-scroll">

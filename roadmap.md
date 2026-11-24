@@ -1,3 +1,8 @@
+## Home promo cards — 2026-11-24
+- [x] Bright PRO card at the top of home for free accounts, opens the plans page.
+- [x] Pink WIN card next to it (shows "coming soon" for now).
+- [ ] Decide what WIN Pro does (owner: later).
+
 ## Plans page redesign — 2026-11-24
 - [x] Clean paywall like the owner's reference: block wordmark, one bright colour per plan, real Ceyo features, focus on fonts and colours.
 - [x] Plans page: icons without background, fits one screen (no scrolling), real Ceyo features, iOS-style sliding plan tabs.

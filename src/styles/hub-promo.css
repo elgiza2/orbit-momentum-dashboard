@@ -1,0 +1,27 @@
+/* Home promo cards: one bright colour per card, block-letter tiles, swipeable row. */
+.hub-promo{
+  --promo-pro:#dcff7a;--promo-win:#f08fd8;--promo-on:#0a0a0a;
+  display:flex;gap:10px;margin:2px -12px 22px;padding:0 12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:12px;scrollbar-width:none;overscroll-behavior-x:contain;
+  font-family:"Readex Pro",system-ui,sans-serif;
+}
+.hub-promo::-webkit-scrollbar{display:none}
+.hub-promo-card{
+  --c:var(--promo-pro);
+  position:relative;flex:0 0 calc(100% - 26px);display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:96px;padding:12px;
+  border:0;border-radius:22px;background:var(--c);color:var(--promo-on);scroll-snap-align:start;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform .25s cubic-bezier(.32,.72,0,1);
+}
+.hub-promo[data-count="1"] .hub-promo-card{flex-basis:100%}
+.hub-promo-card[data-tone=win]{--c:var(--promo-win)}
+.hub-promo-card:active{transform:scale(.97)}
+.hub-promo-word{display:flex;gap:4px;align-self:stretch}
+.hub-promo-word i{
+  display:grid;place-items:center;width:62px;min-height:72px;border-radius:10px;
+  background:linear-gradient(180deg,color-mix(in oklab,var(--c) 38%,var(--promo-on)) 0%,var(--promo-on) 100%);
+  color:var(--c);font:normal 400 44px/1 "Dela Gothic One","Readex Pro",system-ui,sans-serif;
+}
+.hub-promo-cta{
+  align-self:flex-end;flex:none;padding:9px 15px;border-radius:999px;
+  background:color-mix(in oklab,var(--c) 82%,var(--promo-on));color:var(--promo-on);font-size:14px;font-weight:500;line-height:1;
+}
+@media (max-width:360px){.hub-promo-word i{width:52px;min-height:62px;font-size:36px}}

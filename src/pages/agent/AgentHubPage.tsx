@@ -35,6 +35,7 @@ import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/stor
 import { promptUpgrade } from "@/lib/upgradeMoment";
 import { isPaidUser } from "@/lib/subscriptionGating";
 import { HubChat } from "./hub/HubChat";
+import { HubPromoCards } from "./hub/HubPromoCards";
 import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
 import { AgentForm, GroupForm, ProfilePanel, SearchOverlay, type AgentFormValue } from "./hub/HubPanels";
@@ -391,6 +392,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
       </header>
 
       <div className="hub-home-scroll">
+        {!demo && ws.ready && !paid && <HubPromoCards ar={ar} onOpen={(to) => nav(to)} />}
         {primary ? (
           <button type="button" className="hub-primary-button" onClick={() => openChat("bot", primary.id)}>
             <span className="hub-primary-character"><BotAvatar agent={primary} size={104} state="idle" /><i className="hub-primary-star"><Star size={13} fill="currentColor" strokeWidth={0} /></i></span>
