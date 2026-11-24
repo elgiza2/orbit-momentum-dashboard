@@ -36,6 +36,7 @@ import { promptUpgrade } from "@/lib/upgradeMoment";
 import { isPaidUser } from "@/lib/subscriptionGating";
 import { HubChat } from "./hub/HubChat";
 import { HubPromoCards } from "./hub/HubPromoCards";
+import { WelcomeTour } from "./hub/WelcomeTour";
 import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
 import { AgentForm, GroupForm, ProfilePanel, SearchOverlay, type AgentFormValue } from "./hub/HubPanels";
@@ -391,6 +392,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
         </div>
       </header>
 
+      {!demo && <WelcomeTour ar={ar} />}
       <div className="hub-home-scroll">
         {!demo && ws.ready && !paid && <HubPromoCards ar={ar} onOpen={(to) => nav(to)} />}
         {primary ? (
