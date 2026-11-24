@@ -86,14 +86,15 @@
 .wt-bar i{display:block;height:100%;width:100%;background:var(--c);border-radius:6px;transform-origin:left;animation:wt-fill 2.4s var(--ease) .3s both}
 [dir=rtl] .wt-bar i{transform-origin:right}
 @keyframes wt-fill{from{transform:scaleX(0)}}
-/* slide 3 gold */
-.wt-head-pro .wt-brand span{background:linear-gradient(100deg,#b8862b 0%,#f7dc8a 25%,#fff6d6 40%,#d9a441 55%,#8a5f16 75%,#f7dc8a 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wt-gold 3.2s linear infinite}
-@keyframes wt-gold{to{background-position:-250% 0}}
-.wt-limited{display:flex;white-space:nowrap;align-items:center;gap:12px;margin-bottom:16px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(100deg,#b8862b,#f7dc8a 30%,#fff6d6 45%,#d9a441 60%,#f7dc8a);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wt-gold 3.2s linear infinite}
-[dir=rtl] .wt-limited{letter-spacing:0;font-size:14px}
-.wt-limited::before,.wt-limited::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,#e9c46a99)}
-.wt-limited::after{background:linear-gradient(90deg,#e9c46a99,transparent)}
-.wt-procard{background:linear-gradient(135deg,#f9e29a,#d9a441 55%,#b07a22);position:relative;overflow:hidden;box-shadow:0 20px 60px -20px #d9a44199}
-.wt-procard::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(100deg,transparent,#fff8,transparent);transform:skewX(-20deg);animation:wt-sweep 3s ease-in-out 1s infinite;pointer-events:none}
-@keyframes wt-sweep{0%{left:-60%}45%,100%{left:130%}}
+/* slide 3 */
+.wt-head-pro .wt-brand span{color:var(--lime);text-shadow:0 0 28px #dcfc7c55}
+.wt-limited{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;padding:6px 14px 6px 6px;border-radius:999px;background:#161618;border:1px solid #ffffff14;font-size:13px;color:#fffc}
+[dir=rtl] .wt-limited{padding:6px 6px 6px 14px}
+.wt-limited b{background:var(--lime);color:#0b0b0c;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px}
+.wt-procard{background:var(--lime);position:relative;overflow:hidden}
+.wt-procard::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,#ffffffa0,transparent);transform:skewX(-20deg);animation:wt-sweep 3.5s ease-in-out 1s infinite;pointer-events:none}
+@keyframes wt-sweep{0%{left:-60%}40%,100%{left:130%}}
 .wt-procard>*{position:relative;z-index:1}
+.wt-pro-btn{font-size:18px;padding:18px;box-shadow:0 8px 20px -8px #0008}
+.wt-free{width:100%;margin-top:12px;padding:15px;border:1.5px solid #ffffff33 !important;border-radius:999px;color:#fff;font-size:15px;font-weight:600}
+.wt-top{min-height:18px}

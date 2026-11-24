@@ -72,7 +72,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
       <div className="wt-glow" data-step={step} />
       <div className="wt-top">
         <div className="wt-bars">{[0, 1, 2].map((i) => <button key={i} type="button" aria-label={`${i + 1}`} onClick={() => go(i)} className={i < step ? "done" : i === step ? "on" : ""}><i /></button>)}</div>
-        <button type="button" className="wt-skip" onClick={close}>{t("تخطي", "Skip")}</button>
+        
       </div>
 
       <div className={`wt-stage ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
@@ -116,7 +116,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
         {step === 2 && (
           <>
             <div className="wt-head wt-head-pro">
-              <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Limited to a few users only")}</div>
+              <div className="wt-limited"><b>{t("محدود", "Limited")}</b><span>{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</span></div>
               <div className="wt-brand">CEYO <span>PRO</span></div>
               <p>{t("سلّم شغلك وحياتك لعقل بيشتغل من غير حدود.", "Hand your work and life to a mind with no limits.")}</p>
             </div>
