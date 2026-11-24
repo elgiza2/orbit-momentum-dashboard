@@ -35,6 +35,7 @@ import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/stor
 import { promptUpgrade } from "@/lib/upgradeMoment";
 import { HubChat } from "./hub/HubChat";
 import { WelcomeTour } from "./hub/WelcomeTour";
+import { PermissionPromptQueue } from "@/components/permissions/PermissionPromptSheet";
 import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
 import { AgentForm, GroupForm, ProfilePanel, SearchOverlay, type AgentFormValue } from "./hub/HubPanels";
@@ -389,6 +390,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
       </header>
 
       {!demo && <WelcomeTour ar={ar} />}
+      {!demo && <PermissionPromptQueue ar={ar} ready={ws.ready} />}
       <div className="hub-home-scroll">
         {primary ? (
           <button type="button" className="hub-primary-button" onClick={() => openChat("bot", primary.id)}>

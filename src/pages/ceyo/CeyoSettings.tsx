@@ -26,6 +26,8 @@ import "@/styles/settings-polish.css";
 const CheckoutSheet = lazy(() => import("@/components/billing/CheckoutSheet").then((m) => ({ default: m.CheckoutSheet })));
 import { useUserLang, setUserLang, detectLang } from "@/lib/authI18n";
 import { normalizeAppLanguage } from "@/lib/i18n/bundledLocales";
+import { PermissionPromptSheet, type PermissionPromptKind } from "@/components/permissions/PermissionPromptSheet";
+import { isNativeApp } from "@/lib/native/bridge";
 import "@/styles/subscriptions.css";
 import "@/styles/plans-paywall.css";
 import "@/styles/usage-page.css";
@@ -215,7 +217,7 @@ function Main({ nav }: { nav: Nav }) {
       </Group>
       <Group><Row label="Connect apps" sub="Search plugins" onClick={() => nav("/settings/apps")} /></Group>
       <Group title="Agent">
-        <Row label="Permissions" sub={permissionSummary(permissions)} onClick={() => nav("/settings/permissions")} />
+        <Row label={ar ? "صلاحيات الذكاء الاصطناعي" : "AI Permissions"} sub={ar ? "الإشعارات، جهات الاتصال، الموقع وصلاحيات الهاتف" : "Notifications, contacts, location & device access"} onClick={() => nav("/settings/permissions")} />
         <Row label="Time Zone" value={tz} right={<span />} />
         <Row label="Agent Computer" onClick={() => nav("/settings/computer")} />
         <Row label="Manage your devices" onClick={() => nav("/settings/devices")} />
@@ -854,10 +856,56 @@ function Computer({ nav }: { nav: Nav }) {
 }
 
 function Permissions({ nav }: { nav: Nav }) {
+  const ar = useUserLang().startsWith("ar");
   const [preferences, setPreferences] = useState<PermissionPreferences>(DEFAULT_PERMISSIONS);
   const [adding, setAdding] = useState<PermissionRuleKind | null>(null);
   const [text, setText] = useState("");
-  useEffect(() => { setPreferences(parsePermissionPreferences(readSetting(PERMISSIONS_STORAGE_KEY))); }, []);
+  const [promptKind, setPromptKind] = useState<PermissionPromptKind | null>(null);
+  const [notifState, setNotifState] = useState<string>("default");
+  const [locGranted, setLocGranted] = useState(false);
+  const [contactsGranted, setContactsGranted] = useState(false);
+  const [micGranted, setMicGranted] = useState(false);
+  const native = isNativeApp();
+  const nativeSt = native ? phoneStatus() : null;
+
+  const refreshDevice = () => {
+    if (typeof Notification !== "undefined") setNotifState(Notification.permission);
+    try {
+      setLocGranted(localStorage.getItem("ceyo.perm.location") === "granted");
+      setContactsGranted(localStorage.getItem("ceyo.perm.contacts") === "granted");
+      setMicGranted(localStorage.getItem("ceyo.perm.mic") === "granted");
+    } catch { /* ignore */ }
+  };
+
+  useEffect(() => {
+    setPreferences(parsePermissionPreferences(readSetting(PERMISSIONS_STORAGE_KEY)));
+    refreshDevice();
+  }, []);
+
+  const requestMicCam = async () => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      toast(ar ? "الميكروفون غير مدعوم على هذا الجهاز" : "Microphone not supported on this device");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      try { localStorage.setItem("ceyo.perm.mic", "granted"); } catch { /* ignore */ }
+      setMicGranted(true);
+      toast.success(ar ? "تم تفعيل الميكروفون" : "Microphone enabled");
+    } catch {
+      toast(ar ? "لم يتم منح صلاحية الميكروفون" : "Microphone permission denied");
+    }
+  };
+
+  const openAndroidSetting = (which: "listener" | "alarms" | "overlay" | "battery" | "assistant") => {
+    if (!native) {
+      toast(ar ? "متاحة داخل تطبيق أندرويد" : "Available in the Android app");
+      return;
+    }
+    phoneOpenSettings(which);
+  };
+
   const save = (next: PermissionPreferences) => { if (!saveSetting(PERMISSIONS_STORAGE_KEY, JSON.stringify(next))) { toast.error("Could not save this preference on your device."); return false; } setPreferences(next); return true; };
   const add = () => {
     if (!adding || !text.trim()) return;
@@ -872,11 +920,78 @@ function Permissions({ nav }: { nav: Nav }) {
     <div className="ceyo-rule-list">{preferences[kind].length ? preferences[kind].map((rule, index) => <div className="ceyo-rule" key={`${rule}-${index}`}><span>{rule}</span><button type="button" aria-label={`Delete rule ${rule}`} onClick={() => save(removePermissionRule(preferences, kind, index))}><Trash2 size={16} /></button></div>) : <p>No rules yet</p>}</div>
   </section>;
   return (
-    <Shell title="Permissions" back={() => nav("/settings")}>
-      <Group><Row label="Auto-Review" sub="Not connected to agent actions" checked={false} disabled right={<Toggle on={false} />} /></Group>
+    <Shell title={ar ? "صلاحيات الذكاء الاصطناعي" : "AI Permissions"} back={() => nav("/settings")}>
+      {promptKind && (
+        <PermissionPromptSheet
+          kind={promptKind}
+          ar={ar}
+          onDone={() => {
+            setPromptKind(null);
+            refreshDevice();
+          }}
+        />
+      )}
+      <Group title={ar ? "صلاحيات الهاتف الأساسية" : "Core device access"}>
+        <Row
+          label={ar ? "الإشعارات" : "Notifications"}
+          sub={ar ? "التذكيرات، الردود، والمهام المكتملة" : "Reminders, replies, completed tasks"}
+          value={notifState === "granted" || nativeSt?.notifications ? (ar ? "مفعّلة" : "On") : notifState === "denied" ? (ar ? "مقفولة" : "Blocked") : (ar ? "إيقاف" : "Off")}
+          onClick={() => setPromptKind("notifications")}
+        />
+        <Row
+          label={ar ? "جهات الاتصال" : "Contacts"}
+          sub={ar ? "إرسال رسائل والاتصال بجهات اتصالك (أندرويد)" : "Message and call your contacts (Android)"}
+          value={contactsGranted ? (ar ? "مفعّلة" : "On") : (ar ? "اختياري" : "Optional")}
+          onClick={() => setPromptKind("contacts")}
+        />
+        <Row
+          label={ar ? "الموقع الجغرافي" : "Location"}
+          sub={ar ? "تذكيرات حسب المكان والطقس والأماكن القريبة" : "Location reminders, weather & nearby places"}
+          value={locGranted ? (ar ? "مفعّلة" : "On") : (ar ? "اختياري" : "Optional")}
+          onClick={() => setPromptKind("location")}
+        />
+        <Row
+          label={ar ? "الميكروفون والمكالمات" : "Microphone & Calls"}
+          sub={ar ? "المكالمات الصوتية والرسائل الصوتية" : "Voice calls and voice messages"}
+          value={micGranted ? (ar ? "مفعّلة" : "On") : (ar ? "إيقاف" : "Off")}
+          onClick={() => void requestMicCam()}
+        />
+      </Group>
+      <Group title={ar ? "وصول عميق على أندرويد" : "Android deep access"}>
+        <Row
+          label={ar ? "قراءة الإشعارات" : "Notification Reader"}
+          sub={ar ? "متابعة الفواتير والروابط والرسائل على الجهاز" : "Read bills, alerts & links on-device"}
+          value={nativeSt?.listener ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
+          onClick={() => openAndroidSetting("listener")}
+        />
+        <Row
+          label={ar ? "المنبهات والتذكيرات الدقيقة" : "Exact Alarms & Reminders"}
+          sub={ar ? "ضبط منبهات ومواعيد حقيقية على الهاتف" : "Schedule real alarms on your phone"}
+          value={native ? (ar ? "فتح" : "Open") : (ar ? "أندرويد" : "Android")}
+          onClick={() => openAndroidSetting("alarms")}
+        />
+        <Row
+          label={ar ? "الظهور فوق التطبيقات" : "Draw over other apps"}
+          sub={ar ? "الوصول للبوت من أي تطبيق فورًا" : "Summon your bot over any app"}
+          value={nativeSt?.overlay ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
+          onClick={() => openAndroidSetting("overlay")}
+        />
+        <Row
+          label={ar ? "العمل في الخلفية بدون قيود" : "Unrestricted background"}
+          sub={ar ? "إبقاء البوت شغال للمهام الطويلة والروتين" : "Keep routines & long tasks running"}
+          value={nativeSt?.battery ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
+          onClick={() => openAndroidSetting("battery")}
+        />
+        <Row
+          label={ar ? "المساعد الافتراضي للهاتف" : "Default Phone Assistant"}
+          sub={ar ? "تعيين Ceyo كمساعد أندرويد الأساسي" : "Set Ceyo as your Android assistant"}
+          value={nativeSt?.assistant ? (ar ? "مفعّلة" : "On") : native ? (ar ? "إيقاف" : "Off") : (ar ? "أندرويد" : "Android")}
+          onClick={() => openAndroidSetting("assistant")}
+        />
+      </Group>
       {section("ask", "Always Ask", "Saved preferences for actions you want reviewed")}
       {section("allow", "Allow without Asking", "Saved preferences; these do not authorize actions")}
-      <p className="ceyo-note ceyo-permission-note">Rules are saved only on this device and are not enforced. External actions still require their own approval.</p>
+      <p className="ceyo-note ceyo-permission-note">{ar ? "أنت تتحكم بالكامل في كل صلاحية ويمكنك تشغيلها أو إيقافها في أي وقت." : "You are always in full control and can enable or revoke any permission at any time."}</p>
     </Shell>
   );
 }
