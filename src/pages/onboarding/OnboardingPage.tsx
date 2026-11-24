@@ -1,7 +1,7 @@
 /** First-run setup: profile → what you do → create your primary bot. */
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, User, Code, Palette, GraduationCap, Briefcase, FilmSlate, Sparkle, CaretLeft } from "@phosphor-icons/react";
+import { Camera, User, Code, Palette, GraduationCap, Briefcase, FilmSlate, Sparkle, CaretLeft, Check, At, Users } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import { forceDarkTheme } from "@/lib/theme";
 import { AgentForm, type AgentFormValue } from "@/pages/agent/hub/HubPanels";
@@ -12,15 +12,16 @@ import { toAvatar } from "@/lib/profile/avatar";
 import { peopleApi, normalizeUsername, USERNAME_RE } from "@/lib/people/peopleApi";
 
 const TYPES = [
-  { id: "developer", t: "Developer", I: Code },
-  { id: "designer", t: "Designer", I: Palette },
-  { id: "student", t: "Student", I: GraduationCap },
-  { id: "business", t: "Business owner", I: Briefcase },
-  { id: "creator", t: "Content creator", I: FilmSlate },
-  { id: "other", t: "Something else", I: Sparkle },
+  { id: "developer", t: "Developer", I: Code, tone: "lime" },
+  { id: "designer", t: "Designer", I: Palette, tone: "pink" },
+  { id: "student", t: "Student", I: GraduationCap, tone: "sky" },
+  { id: "business", t: "Business owner", I: Briefcase, tone: "peach" },
+  { id: "creator", t: "Content creator", I: FilmSlate, tone: "lavender" },
+  { id: "other", t: "Something else", I: Sparkle, tone: "sun" },
 ];
+const TOTAL_STEPS = 5;
 const AGES = Array.from({ length: 108 }, (_, i) => i + 13);
-const ROW = 48;
+const ROW = 52;
 
 function AgeWheel({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -105,7 +106,7 @@ export default function OnboardingPage() {
       if (!hadUsername) { await peopleApi.setUsername(username); setHadUsername(true); }
       const { error } = await supabase.from("profiles").update({ group_invites: invites } as never).eq("id", uid);
       if (error) throw error;
-      goStep(1);
+      goStep(2);
     } catch (e) { setErr(e instanceof Error && /taken|exist|duplicate/i.test(e.message) ? "That username is taken. Try another." : "Couldn't save. Try again."); }
     finally { setBusy(false); }
   };
@@ -131,55 +132,94 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob" dir="ltr">
-      <div className="ob-glow" data-step={step} aria-hidden="true" />
       <header className="ob-top">
         {step > 0 ? <Button variant="ghost" size="icon" className="ob-back" disabled={busy} onClick={() => goStep(step - 1)} aria-label="Back"><CaretLeft size={20} weight="bold" /></Button> : <span className="ob-spacer" />}
-        <div className="ob-bars" aria-hidden="true">{[0, 1, 2].map((d) => <span key={d} className={d < step ? "done" : d === step ? "on" : ""}><i /></span>)}</div>
-        <span className="ob-step-num">{step + 1}/3</span>
+        <div className="ob-bars" aria-hidden="true">{Array.from({ length: TOTAL_STEPS }, (_, d) => <span key={d} className={d < step ? "done" : d === step ? "on" : ""}><i /></span>)}</div>
+        <span className="ob-step-num">{step + 1}/{TOTAL_STEPS}</span>
       </header>
-      {step === 2 && (
+      {step === 4 && (
         <main className={`ob-main ob-bot ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
-          <h1>Create your main bot</h1>
-          <p className="ob-sub">Your main assistant. You can change it anytime.</p>
-          <AgentForm lang="en" title="" cta="Create" busy={busy} error={err} onSubmit={(v) => void finish(v)} onCancel={() => goStep(1)} />
+          <div className="ob-head">
+            <h1>Create your main bot</h1>
+            <p className="ob-sub">Your personal AI assistant. You can customize it anytime.</p>
+          </div>
+          <AgentForm lang="en" title="" cta="Create & Start" busy={busy} error={err} onSubmit={(v) => void finish(v)} onCancel={() => goStep(3)} />
         </main>
       )}
-      {step < 2 && <main className={`ob-main ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
+      {step < 4 && <main className={`ob-main ${dir > 0 ? "in-next" : "in-prev"}`} key={step}>
         {step === 0 && (
           <>
-            <h1>Tell us about you</h1>
-            <p className="ob-sub">So your bots know who they're helping.</p>
-            <Button variant="ghost" type="button" className="ob-photo" onClick={() => file.current?.click()} aria-label="Your photo">
-              {avatar ? <img src={avatar} alt="" /> : <span className="ob-initial">{name.trim()[0]?.toUpperCase() || <User size={34} weight="duotone" />}</span>}
-              <span className="ob-photo-badge"><Camera size={14} weight="bold" /></span>
-            </Button>
-            <input ref={file} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) { try { setAvatar(await toAvatar(f)); setErr(""); } catch { setErr("Couldn't open this photo. Choose another image."); } } }} />
-            {err && <p role="alert" className="ob-err">{err}</p>}
-            <input className="ob-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={40} />
-            <label className="ob-user"><span>@</span><input value={username} onChange={(e) => setUsername(normalizeUsername(e.target.value))} placeholder="username" autoCapitalize="none" autoCorrect="off" maxLength={20} disabled={hadUsername} aria-label="Username" /></label>
-            <p className="ob-hint">{hadUsername ? "Your username" : "3–20 lowercase letters, numbers or _. People find you with it."}</p>
-            <p className="ob-label">Who can add you to groups?</p>
-            <div className="ob-seg" role="radiogroup" aria-label="Who can add you to groups">
-              {([["everyone", "Everyone"], ["contacts", "People I chat with"], ["nobody", "Nobody"]] as const).map(([v, t]) => <button type="button" key={v} role="radio" aria-checked={invites === v} className={invites === v ? "on" : ""} onClick={() => setInvites(v)}>{t}</button>)}
+            <div className="ob-head">
+              <h1>What should we call you?</h1>
+              <p className="ob-sub">Add your name and a photo so your bots recognize you.</p>
             </div>
-            <p className="ob-label">How old are you?</p>
-            <AgeWheel value={age} onChange={setAge} />
-            <Button variant="neutral" className="ob-btn" disabled={busy || name.trim().length < 2 || !USERNAME_RE.test(username)} onClick={() => void saveIdentity()}>{busy ? "Saving…" : "Continue"}</Button>
+            <div className="ob-body">
+              <Button variant="ghost" type="button" className="ob-photo" onClick={() => file.current?.click()} aria-label="Your photo">
+                {avatar ? <img src={avatar} alt="" /> : <span className="ob-initial">{name.trim()[0]?.toUpperCase() || <User size={38} weight="duotone" />}</span>}
+                <span className="ob-photo-badge"><Camera size={15} weight="bold" /></span>
+              </Button>
+              <input ref={file} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (f) { try { setAvatar(await toAvatar(f)); setErr(""); } catch { setErr("Couldn't open this photo. Choose another image."); } } }} />
+              {err && <p role="alert" className="ob-err">{err}</p>}
+              <input className="ob-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={40} autoFocus />
+            </div>
+            <Button variant="neutral" className="ob-btn" disabled={name.trim().length < 2} onClick={() => { setErr(""); goStep(1); }}>Continue</Button>
           </>
         )}
         {step === 1 && (
           <>
-            <h1>What do you do?</h1>
-            <p className="ob-sub">We'll tune your bots to fit you.</p>
-            <div className="ob-opts">
-              {TYPES.map(({ id, t, I }, i) => (
-                <Button variant="ghost" key={id} aria-pressed={type === id} className={`ob-opt ${type === id ? "on" : ""}`} style={{ animationDelay: `${0.05 + i * 0.05}s` }} onClick={() => setType(id)}>
-                  <I size={24} weight="duotone" className="ob-opt-ico" />
-                  <span>{t}</span>
-                </Button>
-              ))}
+            <div className="ob-head">
+              <h1>Pick your handle</h1>
+              <p className="ob-sub">People use it to find you and invite you to groups.</p>
             </div>
-            <Button variant="neutral" className="ob-btn" disabled={!type} onClick={() => goStep(2)}>Continue</Button>
+            <div className="ob-body">
+              {err && <p role="alert" className="ob-err">{err}</p>}
+              <label className="ob-user">
+                <span className="ob-user-at"><At size={18} weight="bold" /></span>
+                <input value={username} onChange={(e) => setUsername(normalizeUsername(e.target.value))} placeholder="username" autoCapitalize="none" autoCorrect="off" maxLength={20} disabled={hadUsername} aria-label="Username" autoFocus />
+                {USERNAME_RE.test(username) && <span className="ob-user-ok"><Check size={16} weight="bold" /></span>}
+              </label>
+              <p className="ob-hint">{hadUsername ? "Your username is set" : "3–20 lowercase letters, numbers or _"}</p>
+              <div className="ob-card">
+                <p className="ob-label"><Users size={15} weight="duotone" /> Who can add you to groups?</p>
+                <div className="ob-seg" role="radiogroup" aria-label="Who can add you to groups">
+                  {([["everyone", "Everyone"], ["contacts", "Contacts"], ["nobody", "Nobody"]] as const).map(([v, t]) => <button type="button" key={v} role="radio" aria-checked={invites === v} className={invites === v ? "on" : ""} onClick={() => setInvites(v)}>{t}</button>)}
+                </div>
+              </div>
+            </div>
+            <Button variant="neutral" className="ob-btn" disabled={busy || !USERNAME_RE.test(username)} onClick={() => void saveIdentity()}>{busy ? "Saving…" : "Continue"}</Button>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <div className="ob-head">
+              <h1>How old are you?</h1>
+              <p className="ob-sub">Helps tailor your experience and safety settings.</p>
+            </div>
+            <div className="ob-body ob-body-center">
+              <div className="ob-age-pill" aria-live="polite">{age} <span>years</span></div>
+              <AgeWheel value={age} onChange={setAge} />
+            </div>
+            <Button variant="neutral" className="ob-btn" onClick={() => goStep(3)}>Continue</Button>
+          </>
+        )}
+        {step === 3 && (
+          <>
+            <div className="ob-head">
+              <h1>What do you do?</h1>
+              <p className="ob-sub">We'll tune your bots to match your workflow.</p>
+            </div>
+            <div className="ob-body">
+              <div className="ob-opts">
+                {TYPES.map(({ id, t, I, tone }, i) => (
+                  <Button variant="ghost" key={id} aria-pressed={type === id} data-tone={tone} className={`ob-opt ${type === id ? "on" : ""}`} style={{ animationDelay: `${0.04 + i * 0.05}s` }} onClick={() => setType(id)}>
+                    <span className="ob-opt-ico"><I size={22} weight="duotone" /></span>
+                    <span className="ob-opt-txt">{t}</span>
+                    <span className="ob-opt-chk" aria-hidden="true"><Check size={13} weight="bold" /></span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Button variant="neutral" className="ob-btn" disabled={!type} onClick={() => goStep(4)}>Continue</Button>
           </>
         )}
       </main>}
