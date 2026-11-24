@@ -16,18 +16,18 @@ const TASKS = [
   { c: "#fca27a", en: "Track my team's work around the clock", ar: "تابع شغل فريقي طول اليوم" },
 ];
 
-const BOTS: { color: AgentColor; state: OrbState; shape: string; accent: string; en: string; ar: string; task: { en: string; ar: string } }[] = [
-  { color: "mint", state: "tool", shape: "round", accent: "#dcfc7c", en: "Browser & Cloud PC", ar: "المتصفح والكمبيوتر", task: { en: "Opens sites, fills forms and finishes tasks", ar: "بيفتح مواقع ويملأ فورمات ويخلّص شغلك" } },
-  { color: "ocean", state: "talking", shape: "squircle", accent: "#86ece8", en: "Phone & Calls", ar: "الهاتف والمكالمات", task: { en: "Talks with you live by voice or video", ar: "بيكلمك صوت وفيديو وينفّذ أوامرك فورًا" } },
-  { color: "ember", state: "thinking", shape: "soft", accent: "#fca27a", en: "All Your Apps", ar: "كل تطبيقاتك", task: { en: "Runs Gmail, Slack, Notion and Calendar", ar: "بيشغّل Gmail وSlack وNotion والتقويم" } },
-  { color: "aurora", state: "hello", shape: "pill", accent: "#c4a8ff", en: "Projects & Trading", ar: "المشاريع والتداول", task: { en: "Watches markets and your team 24/7", ar: "بيتابع السوق وفريقك طول اليوم" } },
+const GROUP_MSGS: { color: AgentColor; state: OrbState; accent: string; en: string; ar: string; msg: { en: string; ar: string } }[] = [
+  { color: "mint", state: "tool", accent: "#dcfc7c", en: "Browser", ar: "المتصفح", msg: { en: "Opened the site, filled the form and booked it.", ar: "فتحت الموقع وملأت الفورم وحجزت الموعد." } },
+  { color: "ocean", state: "talking", accent: "#86ece8", en: "Phone", ar: "الهاتف", msg: { en: "Called the client — confirmed for 3:00 PM.", ar: "كلمت العميل وأكدنا الميعاد الساعة 3 العصر." } },
+  { color: "ember", state: "thinking", accent: "#fca27a", en: "Apps", ar: "التطبيقات", msg: { en: "Sent the recap on Gmail and updated Notion.", ar: "بعتّ الملخص على Gmail وحدّثت Notion." } },
+  { color: "aurora", state: "hello", accent: "#c4a8ff", en: "Markets", ar: "الأسواق", msg: { en: "Watching liquidity 24/7. Ready when you are.", ar: "براقب السيولة 24/7 وجاهز لأمرك." } },
 ];
 
 const PRO = [
-  { n: "01", en: "Cloud Computer", ar: "كمبيوتر سحابي", d: { en: "Browses & finishes tasks for you", ar: "يتصفح ويخلّص المهام بدالك" } },
-  { n: "02", en: "Team of Bots", ar: "فريق بوتات", d: { en: "Specialists working together", ar: "بوتات متخصصة بتشتغل سوا" } },
-  { n: "03", en: "Every App Linked", ar: "كل تطبيقاتك", d: { en: "Gmail, Slack, Notion & more", ar: "Gmail وSlack وNotion وغيرهم" } },
-  { n: "04", en: "Runs 24/7", ar: "شغّال 24/7", d: { en: "Works while you sleep", ar: "بيشتغل وانت نايم لوحده" } },
+  { en: "Its own cloud computer & browser", ar: "كمبيوتر ومتصفح خاص على السحابة" },
+  { en: "A team of bots working together", ar: "فريق بوتات بيشتغلوا مع بعض" },
+  { en: "Connected to Gmail, Slack, Notion & more", ar: "متربط بـ Gmail وSlack وNotion وغيرهم" },
+  { en: "Works 24/7 while you sleep", ar: "شغّال 24/7 وانت نايم" },
 ];
 
 export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
@@ -35,7 +35,6 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
-  const [pick, setPick] = useState(0);
   const [sent, setSent] = useState<number | null>(null);
   const touch = useRef<number | null>(null);
 
@@ -85,41 +84,54 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
 
         {step === 1 && (
           <>
-            <div className="wt-bots">
-              {BOTS.map(({ color, state, shape, accent, en, ar: a, task }, i) => (
-                <button key={en} type="button" className={`wt-bot${pick === i ? " on" : ""}`} style={{ ["--c" as string]: accent, animationDelay: `${0.08 + i * 0.1}s` }} onClick={() => setPick(i)}>
-                  <span className={`wt-bot-orb wt-shape-${shape}`}>
-                    <AgentOrb color={color} state={pick === i ? "hello" : state} size={46} />
-                  </span>
-                  <div className="wt-bot-txt">
-                    <b>{ar ? a : en}</b>
-                    <span>{ar ? task.ar : task.en}</span>
+            <div className="wt-group">
+              <div className="wt-group-head">
+                <div className="wt-group-orbs">
+                  {GROUP_MSGS.map(({ color, en }) => <AgentOrb key={en} color={color} state="idle" size={24} />)}
+                </div>
+                <div>
+                  <b>{t("فريق Ceyo", "Ceyo Team")}</b>
+                  <span>{t("4 بوتات شغّالين دلوقتي", "4 bots active now")}</span>
+                </div>
+              </div>
+              <div className="wt-group-feed">
+                {GROUP_MSGS.map(({ color, state, accent, en, ar: a, msg }, i) => (
+                  <div key={en} className="wt-gmsg" style={{ ["--c" as string]: accent, animationDelay: `${0.15 + i * 0.45}s` }}>
+                    <div className="wt-gorb"><AgentOrb color={color} state={state} size={40} /></div>
+                    <div className="wt-gbub">
+                      <b>{ar ? a : en}</b>
+                      <p>{ar ? msg.ar : msg.en}</p>
+                    </div>
                   </div>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
             <div className="wt-head wt-head-big">
-              <h2>{t("شغّال على كل تطبيقاتك.", "Works across all your apps.")}</h2>
-              <p>{t("عنده متصفح وهاتف وكمبيوتر خاص بيه، ومتربط بكل تطبيقات شغلك.", "Its own browser, phone and cloud PC, connected to every app you use.")}</p>
+              <h2>{t("فريق كامل في شات واحد.", "A whole team in one chat.")}</h2>
+              <p>{t("متصفح وهاتف وتطبيقاتك كلها — بيتكلموا مع بعض ويخلّصوا شغلك.", "Browser, phone and all your apps — talking together to get it done.")}</p>
             </div>
           </>
         )}
 
         {step === 2 && (
           <>
-            <div className="wt-head wt-head-pro">
-              <div className="wt-brand">CEYO <span>PRO</span></div>
+            <div className="wt-card">
+              <div className="wt-card-top">
+                <div className="wt-brand">CEYO <span>PRO</span></div>
+                <span className="wt-card-tag">{t("محدود", "LIMITED")}</span>
+              </div>
               <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
+              <div className="wt-card-line" />
+              <ul className="wt-card-list">
+                {PRO.map(({ en, ar: a }, i) => (
+                  <li key={en} style={{ animationDelay: `${0.12 + i * 0.06}s` }}>
+                    <i aria-hidden="true">✓</i>
+                    <span>{ar ? a : en}</span>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
             </div>
-            <ul className="wt-progrid">
-              {PRO.map(({ n, en, ar: a, d }, i) => (
-                <li key={en} style={{ animationDelay: `${0.1 + i * 0.07}s` }}>
-                  <i>{n}</i>
-                  <b>{ar ? a : en}</b>
-                  <small>{ar ? d.ar : d.en}</small>
-                </li>
-              ))}
-            </ul>
           </>
         )}
       </div>
@@ -127,10 +139,7 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
       {step < 2 ? (
         <button type="button" className="wt-next" onClick={() => go(step + 1)}>{t("كمّل", "Continue")}</button>
       ) : (
-        <div className="wt-pro-actions">
-          <button type="button" className="wt-pro-btn" onClick={goPlans}>{t("شوف الباقات", "See plans")}</button>
-          <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
-        </div>
+        <button type="button" className="wt-free" onClick={close}>{t("كمّل بالنسخة المجانية", "Continue with free plan")}</button>
       )}
     </div>
   );
