@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Desktop, UsersThree, Plugs, MoonStars, Globe, PhoneCall, EnvelopeSimple, CalendarBlank, ChatCircleDots, Notebook, Code, FolderSimple } from "@phosphor-icons/react";
+import { AgentOrb, type OrbState } from "@/components/agent/AgentOrb";
+import type { AgentColor } from "@/lib/agentsky/client";
+import "@/styles/agent.css";
 import "@/styles/welcome-tour.css";
 import { loadPaywallFont } from "@/lib/paywallFont";
 
@@ -14,23 +16,18 @@ const TASKS = [
   { c: "#fca27a", en: "Track my team's work around the clock", ar: "تابع شغل فريقي طول اليوم" },
 ];
 
-const TOOLS = [
-  { Icon: Globe, c: "#dcfc7c", en: "Browser", ar: "متصفح", d: { en: "Opens sites, fills forms and gets things done", ar: "بيفتح مواقع ويملأ فورمات ويخلّص شغلك" } },
-  { Icon: PhoneCall, c: "#86ece8", en: "Phone", ar: "هاتف", d: { en: "Talk to Ceyo live by voice or video", ar: "كلّم Ceyo صوت أو فيديو في أي وقت" } },
-  { Icon: Desktop, c: "#f3e3cf", en: "Cloud PC", ar: "كمبيوتر", d: { en: "Its own computer running tasks in the cloud", ar: "كمبيوتر خاص بيه بيشتغل على السحابة" } },
-  { Icon: EnvelopeSimple, c: "#fca27a", en: "Gmail", ar: "Gmail", d: { en: "Reads, sorts and replies to your emails", ar: "بيقرأ ويرتب ويرد على إيميلاتك" } },
-  { Icon: CalendarBlank, c: "#fcd27e", en: "Calendar", ar: "التقويم", d: { en: "Books meetings and protects your time", ar: "بيحجز مواعيدك وينظّم يومك" } },
-  { Icon: ChatCircleDots, c: "#c4a8ff", en: "Slack", ar: "Slack", d: { en: "Follows up with your team automatically", ar: "بيتابع مع فريقك أول بأول" } },
-  { Icon: Notebook, c: "#f3e3cf", en: "Notion", ar: "Notion", d: { en: "Updates docs, notes and project boards", ar: "بيحدّث ملفاتك ومشاريعك تلقائيًا" } },
-  { Icon: Code, c: "#86ece8", en: "GitHub", ar: "GitHub", d: { en: "Tracks repos, issues and releases", ar: "بيتابع الكود والمهام والإصدارات" } },
-  { Icon: FolderSimple, c: "#dcfc7c", en: "Drive", ar: "Drive", d: { en: "Finds, reads and organizes your files", ar: "بيلاقي ويقرأ ويرتب ملفاتك" } },
+const BOTS: { color: AgentColor; state: OrbState; shape: string; accent: string; en: string; ar: string; task: { en: string; ar: string } }[] = [
+  { color: "mint", state: "tool", shape: "round", accent: "#dcfc7c", en: "Browser & Cloud PC", ar: "المتصفح والكمبيوتر", task: { en: "Opens sites, fills forms and finishes tasks", ar: "بيفتح مواقع ويملأ فورمات ويخلّص شغلك" } },
+  { color: "ocean", state: "talking", shape: "squircle", accent: "#86ece8", en: "Phone & Calls", ar: "الهاتف والمكالمات", task: { en: "Talks with you live by voice or video", ar: "بيكلمك صوت وفيديو وينفّذ أوامرك فورًا" } },
+  { color: "ember", state: "thinking", shape: "soft", accent: "#fca27a", en: "All Your Apps", ar: "كل تطبيقاتك", task: { en: "Runs Gmail, Slack, Notion and Calendar", ar: "بيشغّل Gmail وSlack وNotion والتقويم" } },
+  { color: "aurora", state: "hello", shape: "pill", accent: "#c4a8ff", en: "Projects & Trading", ar: "المشاريع والتداول", task: { en: "Watches markets and your team 24/7", ar: "بيتابع السوق وفريقك طول اليوم" } },
 ];
 
 const PRO = [
-  { Icon: Desktop, en: "Its own computer in the cloud", ar: "كمبيوتر خاص بيه على السحابة", d: { en: "Browses, fills forms and finishes tasks for you.", ar: "بيتصفح ويملأ الفورمات ويخلّص المهام بدالك." } },
-  { Icon: UsersThree, en: "A team of bots that work together", ar: "فريق بوتات بيشتغلوا مع بعض", d: { en: "Each bot has a role, Ceyo coordinates them.", ar: "كل بوت ليه دور، وCeyo بينسّق بينهم." } },
-  { Icon: Plugs, en: "Your apps, connected", ar: "تطبيقاتك كلها متربطة", d: { en: "Gmail, Calendar, Slack, Notion and more.", ar: "Gmail وCalendar وSlack وNotion وغيرهم." } },
-  { Icon: MoonStars, en: "Works while you sleep", ar: "بيشتغل وانت نايم", d: { en: "Daily routines and long jobs run on their own.", ar: "روتين يومي ومهام طويلة بتتنفذ لوحدها." } },
+  { n: "01", en: "Cloud Computer", ar: "كمبيوتر سحابي", d: { en: "Browses & finishes tasks for you", ar: "يتصفح ويخلّص المهام بدالك" } },
+  { n: "02", en: "Team of Bots", ar: "فريق بوتات", d: { en: "Specialists working together", ar: "بوتات متخصصة بتشتغل سوا" } },
+  { n: "03", en: "Every App Linked", ar: "كل تطبيقاتك", d: { en: "Gmail, Slack, Notion & more", ar: "Gmail وSlack وNotion وغيرهم" } },
+  { n: "04", en: "Runs 24/7", ar: "شغّال 24/7", d: { en: "Works while you sleep", ar: "بيشتغل وانت نايم لوحده" } },
 ];
 
 export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolean; onDone?: () => void }) {
@@ -52,7 +49,6 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
   const go = (n: number) => { if (n < 0 || n > 2) return; setDir(n > step ? 1 : -1); setStep(n); };
   const goPlans = () => { close(); nav({ to: "/settings/plans" }); };
   const send = (i: number) => { if (sent != null) return; navigator.vibrate?.(10); setSent(i); setTimeout(() => { setSent(null); go(1); }, 520); };
-  const tool = TOOLS[pick] ?? TOOLS[0]!;
   const fwd = ar ? -1 : 1;
 
   return (
@@ -89,19 +85,18 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
 
         {step === 1 && (
           <>
-            <div className="wt-tools-wrap">
-              <div className="wt-tools">
-                {TOOLS.map(({ Icon, c, en, ar: a }, i) => (
-                  <button key={en} type="button" className={`wt-tool${pick === i ? " on" : ""}`} style={{ ["--c" as string]: c, animationDelay: `${0.06 + i * 0.05}s` }} onClick={() => setPick(i)}>
-                    <Icon weight="fill" />
-                    <span>{ar ? a : en}</span>
-                  </button>
-                ))}
-              </div>
-              <div className="wt-tool-note" key={pick} style={{ ["--c" as string]: tool.c }}>
-                <b>{ar ? tool.ar : tool.en}</b>
-                <span>{ar ? tool.d.ar : tool.d.en}</span>
-              </div>
+            <div className="wt-bots">
+              {BOTS.map(({ color, state, shape, accent, en, ar: a, task }, i) => (
+                <button key={en} type="button" className={`wt-bot${pick === i ? " on" : ""}`} style={{ ["--c" as string]: accent, animationDelay: `${0.08 + i * 0.1}s` }} onClick={() => setPick(i)}>
+                  <span className={`wt-bot-orb wt-shape-${shape}`}>
+                    <AgentOrb color={color} state={pick === i ? "hello" : state} size={46} />
+                  </span>
+                  <div className="wt-bot-txt">
+                    <b>{ar ? a : en}</b>
+                    <span>{ar ? task.ar : task.en}</span>
+                  </div>
+                </button>
+              ))}
             </div>
             <div className="wt-head wt-head-big">
               <h2>{t("شغّال على كل تطبيقاتك.", "Works across all your apps.")}</h2>
@@ -116,11 +111,12 @@ export function WelcomeTour({ ar, force, onDone }: { ar: boolean; force?: boolea
               <div className="wt-brand">CEYO <span>PRO</span></div>
               <div className="wt-limited">{t("متاح لعدد محدود من المستخدمين فقط", "Open to a limited number of users only")}</div>
             </div>
-            <ul className="wt-prolist">
-              {PRO.map(({ Icon, en, ar: a, d }, i) => (
-                <li key={en} style={{ animationDelay: `${0.12 + i * 0.07}s` }}>
-                  <span className="wt-pro-ico"><Icon weight="fill" /></span>
-                  <div><b>{ar ? a : en}</b><small>{ar ? d.ar : d.en}</small></div>
+            <ul className="wt-progrid">
+              {PRO.map(({ n, en, ar: a, d }, i) => (
+                <li key={en} style={{ animationDelay: `${0.1 + i * 0.07}s` }}>
+                  <i>{n}</i>
+                  <b>{ar ? a : en}</b>
+                  <small>{ar ? d.ar : d.en}</small>
                 </li>
               ))}
             </ul>
